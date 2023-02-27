@@ -7,6 +7,7 @@ const {
   errorHandler,
 } = require("./middlewares/common/errorHandler");
 const loginRouter = require("./routers/loginRouter");
+const userRouter = require("./routers/userRouter");
 
 const app = express();
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", loginRouter);
+app.use("/users", userRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
