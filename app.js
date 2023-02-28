@@ -8,6 +8,7 @@ const {
 } = require("./middlewares/common/errorHandler");
 const loginRouter = require("./routers/loginRouter");
 const userRouter = require("./routers/userRouter");
+const categoryRouter = require("./routers/categoryRouter");
 
 const app = express();
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", loginRouter);
 app.use("/users", userRouter);
+app.use("/category", categoryRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
