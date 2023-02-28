@@ -9,11 +9,18 @@ const {
 const loginRouter = require("./routers/loginRouter");
 const userRouter = require("./routers/userRouter");
 const categoryRouter = require("./routers/categoryRouter");
+const articleRouter = require("./routers/articleRouter");
 
 const app = express();
 dotenv.config();
 
 mongoose.set("strictQuery", true);
+mongoose.set("toJSON", {
+  virtuals: true,
+  transform: (doc, converted) => {
+    delete converted._id;
+  },
+});
 mongoose
   .connect(process.env.MONGO_CONNECTION_URL)
   .then(() => {
@@ -31,6 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", loginRouter);
 app.use("/users", userRouter);
 app.use("/category", categoryRouter);
+app.use("/article", articleRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

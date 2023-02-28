@@ -57,8 +57,29 @@ const deleteCategoryById = async (req, res, next) => {
   }
 };
 
+const findAllCategoris = async (req, res, next) => {
+  try {
+    const categories = await Category.find({}, { __v: 0 }).sort({
+      createAt: -1,
+    });
+    res.status(200).json({
+      data: categories,
+      message: "successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      errors: {
+        common: {
+          msg: error.message,
+        },
+      },
+    });
+  }
+};
+
 module.exports = {
   addCategory,
   updateCategoryById,
   deleteCategoryById,
+  findAllCategoris,
 };

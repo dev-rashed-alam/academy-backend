@@ -3,20 +3,23 @@ const {
   addCategory,
   updateCategoryById,
   deleteCategoryById,
+  findAllCategoris,
 } = require("../controllers/categoryController");
 const authMiddleware = require("../middlewares/common/authMiddleware");
 const {
   addCategoryValidators,
-  addCategoryValidationHandler,
 } = require("../middlewares/category/categoryValidators");
+const validationHandler = require("../middlewares/common/validationHandler");
 
 const router = express.Router();
+
+router.get("/all", authMiddleware, findAllCategoris);
 
 router.post(
   "/",
   authMiddleware,
   addCategoryValidators,
-  addCategoryValidationHandler,
+  validationHandler,
   addCategory
 );
 
@@ -24,7 +27,7 @@ router.put(
   "/:id",
   authMiddleware,
   addCategoryValidators,
-  addCategoryValidationHandler,
+  validationHandler,
   updateCategoryById
 );
 
