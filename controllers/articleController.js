@@ -45,7 +45,25 @@ const findAllArticles = async (req, res, next) => {
   }
 };
 
+const deleteArticleById = async (req, res, next) => {
+  try {
+    await Article.deleteOne({ _id: req.params.id });
+    res.status(200).json({
+      message: "Article deleted successful!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      errors: {
+        common: {
+          msg: error.message,
+        },
+      },
+    });
+  }
+};
+
 module.exports = {
   addArticle,
   findAllArticles,
+  deleteArticleById,
 };

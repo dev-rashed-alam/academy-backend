@@ -2,6 +2,7 @@ const express = require("express");
 const {
   addArticle,
   findAllArticles,
+  deleteArticleById,
 } = require("../controllers/articleController");
 const {
   addArticleValidators,
@@ -12,6 +13,7 @@ const validationHandler = require("../middlewares/common/validationHandler");
 const router = express.Router();
 
 router.get("/all", authMiddleware, findAllArticles);
+router.delete("/:id", authMiddleware, deleteArticleById);
 
 router.post(
   "/",
