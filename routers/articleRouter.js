@@ -3,23 +3,27 @@ const {
   addArticle,
   findAllArticles,
   deleteArticleById,
+  findArticleById,
 } = require("../controllers/articleController");
 const {
   addArticleValidators,
+  articleValidationHandler,
 } = require("../middlewares/article/articleValidators");
+const thumbnailUpload = require("../middlewares/article/thumbnailUpload");
 const authMiddleware = require("../middlewares/common/authMiddleware");
-const validationHandler = require("../middlewares/common/validationHandler");
 
 const router = express.Router();
 
 router.get("/all", authMiddleware, findAllArticles);
+router.get("/:id", authMiddleware, findArticleById);
 router.delete("/:id", authMiddleware, deleteArticleById);
 
 router.post(
   "/",
+  thumbnailUpload,
   authMiddleware,
   addArticleValidators,
-  validationHandler,
+  articleValidationHandler,
   addArticle
 );
 

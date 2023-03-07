@@ -77,9 +77,28 @@ const findAllCategoris = async (req, res, next) => {
   }
 };
 
+const findCategoryById = async (req, res, next) => {
+  try {
+    const category = await Category.findOne({ _id: req.params.id }, { __v: 0 });
+    res.status(200).json({
+      data: category,
+      message: "successful!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      errors: {
+        common: {
+          msg: error.message,
+        },
+      },
+    });
+  }
+};
+
 module.exports = {
   addCategory,
   updateCategoryById,
   deleteCategoryById,
   findAllCategoris,
+  findCategoryById,
 };

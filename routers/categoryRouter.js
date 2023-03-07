@@ -4,6 +4,7 @@ const {
   updateCategoryById,
   deleteCategoryById,
   findAllCategoris,
+  findCategoryById,
 } = require("../controllers/categoryController");
 const authMiddleware = require("../middlewares/common/authMiddleware");
 const {
@@ -14,6 +15,7 @@ const validationHandler = require("../middlewares/common/validationHandler");
 const router = express.Router();
 
 router.get("/all", authMiddleware, findAllCategoris);
+router.get("/:id", authMiddleware, findCategoryById);
 
 router.post(
   "/",
