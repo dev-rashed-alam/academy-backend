@@ -1,5 +1,5 @@
 const { check, validationResult } = require("express-validator");
-const path = require("path");
+const removeUploadedFile = require("../../utilities/removeUploadedFIle");
 
 const addArticleValidators = [
   check("title").notEmpty().withMessage("Title is required"),
@@ -16,15 +16,7 @@ const articleValidationHandler = (req, res, next) => {
   } else {
     if (req.files?.length > 0) {
       const { filename } = req.files[0];
-      unlink(
-        path.join(
-          __dirname,
-          `../../public/uploads/article/thumbnails/${filename}`
-        ),
-        (err) => {
-          if (err) console.log(err);
-        }
-      );
+      removeUploadedFile(filename, "article/thumbnails");
     }
 
     res.status(403).json({

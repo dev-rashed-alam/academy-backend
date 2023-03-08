@@ -4,6 +4,7 @@ const {
   findAllArticles,
   deleteArticleById,
   findArticleById,
+  updateArticleById,
 } = require("../controllers/articleController");
 const {
   addArticleValidators,
@@ -26,5 +27,7 @@ router.post(
   articleValidationHandler,
   addArticle
 );
+
+router.put("/:id", authMiddleware, thumbnailUpload, updateArticleById);
 
 module.exports = router;
