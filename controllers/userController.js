@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const createError = require("http-errors");
 const User = require("../models/User");
+const { setCommonError } = require("../utilities/commonErrors");
+const removeUploadedFile = require("../utilities/removeUploadedFIle");
 
 const addUser = async (req, res, next) => {
   let newUser;
@@ -20,55 +20,55 @@ const addUser = async (req, res, next) => {
     });
   }
 
-  // save user or send error
   try {
     await newUser.save();
     res.status(200).json({
       message: "User was added successfully!",
     });
-  } catch (err) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: "Unknown error occured!",
-        },
-      },
-    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
   }
 };
 
-const findUserBYId = async (req, res, next) => {
+const findUserById = async (req, res, next) => {
   try {
-    const user = await User.findOne({ _id: req.params.id });
-
-    if (user && user._id) {
-      let userObj = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        avatar: user.avatar,
-        phoneNumber: user.phoneNumber,
-        userType: user.role,
-      };
-      res.status(200).json({
-        data: userObj,
-        message: "Successful!",
-      });
-    } else {
-      throw createError(404, "User not found!");
-    }
-  } catch (err) {
-    res.status(err.status || 500).json({
-      errors: {
-        common: {
-          msg: err.message,
-        },
-      },
+    const user = await User.findOne(
+      { _id: req.params.id },
+      { __v: 0, password: 0 }
+    );
+    res.status(200).json({
+      data: user,
+      message: "Successful!",
     });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
+const updateUserById = async (req, res, next) => {
+  try {
+    const postData = { ...req.body };
+    if (req.files[0]?.filename) {
+      postData.avatar = req.files[0].filename;
+    }
+
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: postData }
+    );
+    if (req.files[0]?.filename) {
+      removeUploadedFile(user.avatar, "avatars");
+    }
+    res.status(200).json({
+      message: "Successful!",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
   }
 };
 
 module.exports = {
   addUser,
-  findUserBYId,
+  findUserById,
+  updateUserById,
 };

@@ -70,8 +70,7 @@ const updateArticleById = async (req, res, next) => {
 
     const article = await Article.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: postData },
-      { fields: { __v: 0 } }
+      { $set: postData }
     )
       .populate("category", "name")
       .populate("user", "email firstName lastName");
@@ -83,7 +82,6 @@ const updateArticleById = async (req, res, next) => {
       message: "Successful!",
     });
   } catch (error) {
-    console.log(error.message);
     setCommonError(res, error.message, 500);
   }
 };

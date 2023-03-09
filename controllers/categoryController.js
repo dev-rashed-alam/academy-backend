@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const { setCommonError } = require("../utilities/commonErrors");
 
 const addCategory = async (req, res, next) => {
   try {
@@ -8,13 +9,7 @@ const addCategory = async (req, res, next) => {
       message: "Category added successful!",
     });
   } catch (error) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: error.message,
-        },
-      },
-    });
+    setCommonError(res, error.message, 500);
   }
 };
 
@@ -30,13 +25,7 @@ const updateCategoryById = async (req, res, next) => {
       message: "Category updated successful!",
     });
   } catch (error) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: error.message,
-        },
-      },
-    });
+    setCommonError(res, error.message, 500);
   }
 };
 
@@ -47,17 +36,11 @@ const deleteCategoryById = async (req, res, next) => {
       message: "Category deleted successful!",
     });
   } catch (error) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: error.message,
-        },
-      },
-    });
+    setCommonError(res, error.message, 500);
   }
 };
 
-const findAllCategoris = async (req, res, next) => {
+const findAllCategories = async (req, res, next) => {
   try {
     const categories = await Category.find({}, { __v: 0 }).sort({
       createAt: -1,
@@ -67,13 +50,7 @@ const findAllCategoris = async (req, res, next) => {
       message: "successful",
     });
   } catch (error) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: error.message,
-        },
-      },
-    });
+    setCommonError(res, error.message, 500);
   }
 };
 
@@ -85,13 +62,7 @@ const findCategoryById = async (req, res, next) => {
       message: "successful!",
     });
   } catch (error) {
-    res.status(500).json({
-      errors: {
-        common: {
-          msg: error.message,
-        },
-      },
-    });
+    setCommonError(res, error.message, 500);
   }
 };
 
@@ -99,6 +70,6 @@ module.exports = {
   addCategory,
   updateCategoryById,
   deleteCategoryById,
-  findAllCategoris,
+  findAllCategories,
   findCategoryById,
 };
