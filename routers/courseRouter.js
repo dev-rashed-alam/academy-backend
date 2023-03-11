@@ -9,12 +9,14 @@ const {
   updateCourseById,
   deleteCourseById,
 } = require("../controllers/courseController");
+const courseUpload = require("../middlewares/course/courseUpload");
 
 const router = express.Router();
 
 router.post(
   "/",
   authMiddleware,
+  courseUpload,
   addCourseValidator,
   validationHandler,
   addNewCourse

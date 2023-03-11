@@ -12,7 +12,7 @@ const thumbnailUpload = (req, res, next) => {
     if (err) {
       res.status(500).json({
         errors: {
-          avatar: {
+          thumbnail: {
             msg: err.message,
           },
         },

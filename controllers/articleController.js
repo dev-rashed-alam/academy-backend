@@ -1,6 +1,8 @@
 const Article = require("../models/Article");
 const { setCommonError } = require("../utilities/commonErrors");
-const removeUploadedFile = require("../utilities/removeUploadedFIle");
+const {
+  removeUploadedFile,
+} = require("../utilities/removeUploadedFileOrFolder");
 
 const addArticle = async (req, res, next) => {
   try {

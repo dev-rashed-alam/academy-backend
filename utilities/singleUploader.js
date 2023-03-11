@@ -29,7 +29,7 @@ const uploader = (
     },
   });
 
-  const upload = multer({
+  return multer({
     storage: storage,
     limits: {
       fileSize: max_file_size,
@@ -42,8 +42,6 @@ const uploader = (
       }
     },
   });
-
-  return upload;
 };
 
 module.exports = uploader;

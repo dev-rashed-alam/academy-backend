@@ -44,6 +44,9 @@ const courseSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    courseRootPath: {
+      type: String,
+    },
     courseDescription: {
       type: String,
       required: true,
@@ -54,6 +57,12 @@ const courseSchema = mongoose.Schema(
         ref: "Category",
       },
     ],
+    videos: {
+      type: Array,
+    },
+    materials: {
+      type: Object,
+    },
   },
   { timestamps: true }
 );

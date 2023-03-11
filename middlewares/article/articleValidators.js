@@ -1,5 +1,7 @@
 const { check, validationResult } = require("express-validator");
-const removeUploadedFile = require("../../utilities/removeUploadedFIle");
+const {
+  removeUploadedFile,
+} = require("../../utilities/removeUploadedFileOrFolder");
 
 const addArticleValidators = [
   check("title").notEmpty().withMessage("Title is required"),

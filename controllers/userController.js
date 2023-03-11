@@ -1,7 +1,9 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const { setCommonError } = require("../utilities/commonErrors");
-const removeUploadedFile = require("../utilities/removeUploadedFIle");
+const {
+  removeUploadedFile,
+} = require("../utilities/removeUploadedFileOrFolder");
 
 const addUser = async (req, res, next) => {
   let newUser;
