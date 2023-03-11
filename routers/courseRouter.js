@@ -8,6 +8,8 @@ const {
   findCourseById,
   updateCourseById,
   deleteCourseById,
+  deleteCourseVideoById,
+  deleteCourseMaterialById,
 } = require("../controllers/courseController");
 const courseUpload = require("../middlewares/course/courseUpload");
 
@@ -25,5 +27,8 @@ router.get("/", authMiddleware, findAllCourses);
 router.get("/:id", authMiddleware, findCourseById);
 router.put("/:id", authMiddleware, updateCourseById);
 router.delete("/:id", authMiddleware, deleteCourseById);
+
+router.post("/materials/remove/:id", authMiddleware, deleteCourseMaterialById);
+router.post("/videos/remove/:id", authMiddleware, deleteCourseVideoById);
 
 module.exports = router;

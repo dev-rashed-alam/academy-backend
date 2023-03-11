@@ -1,7 +1,10 @@
 const Course = require("../models/Course");
 const { setCommonError } = require("../utilities/commonErrors");
 const { allowedFileTypes } = require("../utilities/helpers");
-const { removeDirectory } = require("../utilities/removeUploadedFileOrFolder");
+const {
+  removeDirectory,
+  removeUploadedFile,
+} = require("../utilities/removeUploadedFileOrFolder");
 
 const processUploadedFiles = (files) => {
   let thumbnail = null;
@@ -17,13 +20,25 @@ const processUploadedFiles = (files) => {
       thumbnail = pathName;
     }
     if (item.fieldname === "videos") {
-      videos.push({ url: pathName, name: item.originalname });
+      videos.push({
+        url: pathName,
+        name: item.originalname,
+        filename: item.filename,
+      });
     }
     if (item.fieldname === "materials") {
       if (allowedFileTypes.thumbnail.includes(item.mimetype)) {
-        materials.images.push({ url: pathName, name: item.originalname });
+        materials.images.push({
+          url: pathName,
+          name: item.originalname,
+          filename: item.filename,
+        });
       } else {
-        materials.attachments.push({ url: pathName, name: item.originalname });
+        materials.attachments.push({
+          url: pathName,
+          name: item.originalname,
+          filename: item.filename,
+        });
       }
     }
   }
@@ -107,10 +122,64 @@ const deleteCourseById = async (req, res, next) => {
   }
 };
 
+const deleteCourseVideoById = async (req, res, next) => {
+  try {
+    const filename = req.body.filename;
+    const course = await Course.findOne({ _id: req.params.id });
+    const pathname = `courses/${course.courseRootPath}/videos`;
+    await removeUploadedFile(filename, pathname);
+
+    const modifiedVideos = course.videos.filter(
+      (video) => video.filename !== filename
+    );
+    await Course.updateOne(
+      { _id: req.params.id },
+      { $set: { videos: modifiedVideos } }
+    );
+
+    res.status(200).json({
+      message: "successful",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
+const deleteCourseMaterialById = async (req, res, next) => {
+  try {
+    const filename = req.body.filename;
+    const materialType = req.body.materialType;
+    const course = await Course.findOne({ _id: req.params.id });
+    const pathname = `courses/${course.courseRootPath}/materials`;
+    await removeUploadedFile(filename, pathname);
+
+    const modifiedMaterials = course.materials[materialType].filter(
+      (material) => material.filename !== filename
+    );
+
+    await Course.updateOne(
+      { _id: req.params.id },
+      {
+        $set: {
+          materials: { ...course.materials, [materialType]: modifiedMaterials },
+        },
+      }
+    );
+
+    res.status(200).json({
+      message: "successful",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   addNewCourse,
   findAllCourses,
   findCourseById,
   updateCourseById,
   deleteCourseById,
+  deleteCourseVideoById,
+  deleteCourseMaterialById,
 };
