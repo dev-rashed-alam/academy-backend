@@ -5,21 +5,24 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { allowedFileTypes } = require("./helpers");
 
-const uploader = (req) => {
+const uploader = (request) => {
   const uID = uuidv4();
 
-  req.courseRootPath = uID;
-
-  const subfolderPaths = {
-    thumbnail: `courses/${uID}/thumbnails/`,
-    videos: `courses/${uID}/videos/`,
-    materials: `courses/${uID}/materials/`,
+  const processFolderPaths = (rootPath = uID) => {
+    return {
+      thumbnail: `courses/${rootPath}/thumbnails/`,
+      videos: `courses/${rootPath}/videos/`,
+      materials: `courses/${rootPath}/materials/`,
+    };
   };
 
   const UPLOADS_FOLDER = `${__dirname}/../public/uploads/`;
 
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+      const { courseSecret } = req.body;
+      const subfolderPaths = processFolderPaths(courseSecret);
+      request.courseRootPath = courseSecret || uID;
       if (file.fieldname === "thumbnail") {
         fs.mkdirSync(UPLOADS_FOLDER + subfolderPaths.thumbnail, {
           recursive: true,
@@ -63,6 +66,7 @@ const uploader = (req) => {
   return multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
+      req.courseSecret = req.body.courseSecret;
       if (file.fieldname === "thumbnail") {
         checkFileType(
           file,

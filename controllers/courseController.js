@@ -101,7 +101,22 @@ const findCourseById = async (req, res, next) => {
 
 const updateCourseById = async (req, res, next) => {
   try {
-    await Course.findOneAndUpdate({ _id: req.params.id }, { $set: req.body });
+    const files = processUploadedFiles(req.files);
+    let postData = { ...req.body };
+    if (files.thumbnail) {
+      postData.thumbnail = files.thumbnail;
+    }
+    await Course.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: postData,
+        $push: {
+          videos: { $each: files.videos },
+          "materials.images": { $each: files.materials.images },
+          "materials.attachments": { $each: files.materials.attachments },
+        },
+      }
+    );
     res.status(200).json({
       message: "successful",
     });

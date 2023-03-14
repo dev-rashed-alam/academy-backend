@@ -1,6 +1,6 @@
 const uploader = require("../../utilities/courseUploader");
 
-const courseUpload = (req, res, next) => {
+const courseUpload = async (req, res, next) => {
   const upload = uploader(req);
 
   upload.any()(req, res, (err) => {

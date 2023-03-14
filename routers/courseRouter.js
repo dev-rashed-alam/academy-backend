@@ -1,6 +1,9 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/common/authMiddleware");
-const { addCourseValidator } = require("../middlewares/course/courseValidator");
+const {
+  addCourseValidator,
+  processCourseSecret,
+} = require("../middlewares/course/courseValidator");
 const validationHandler = require("../middlewares/common/validationHandler");
 const {
   addNewCourse,
@@ -25,7 +28,7 @@ router.post(
 );
 router.get("/", authMiddleware, findAllCourses);
 router.get("/:id", authMiddleware, findCourseById);
-router.put("/:id", authMiddleware, updateCourseById);
+router.put("/:id", authMiddleware, courseUpload, updateCourseById);
 router.delete("/:id", authMiddleware, deleteCourseById);
 
 router.post("/materials/remove/:id", authMiddleware, deleteCourseMaterialById);
