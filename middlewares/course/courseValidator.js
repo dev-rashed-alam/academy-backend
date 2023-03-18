@@ -7,7 +7,11 @@ const addCourseValidator = [
   check("courseDuration").notEmpty().withMessage("Duration is required"),
   check("coursePrice").notEmpty().withMessage("Course price is required"),
   check("categoryId").notEmpty().withMessage("Category id is required"),
-  check("courseType").notEmpty().withMessage("Course upload type is required"),
+  check("courseType")
+    .notEmpty()
+    .withMessage("Course upload type is required")
+    .isIn(["custom", "youtube"])
+    .withMessage("Course upload type must be a valid type"),
   check("courseRequirements")
     .notEmpty()
     .withMessage("Course requirements is required"),
@@ -15,6 +19,10 @@ const addCourseValidator = [
   check("courseDescription")
     .notEmpty()
     .withMessage("Course description is required"),
+  check("playlistId")
+    .if(check("courseType").equals("youtube"))
+    .notEmpty()
+    .withMessage("Youtube playlist id is required"),
 ];
 
 const processCourseSecret = (req, res, next) => {

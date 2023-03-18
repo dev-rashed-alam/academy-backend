@@ -53,13 +53,16 @@ const processUploadedFiles = (files) => {
 const addNewCourse = async (req, res, next) => {
   try {
     const files = processUploadedFiles(req.files);
-    const course = new Course({
+    let postData = {
       ...req.body,
       courseRootPath: req.courseRootPath,
-      videos: files.videos,
-      materials: files.materials,
       thumbnail: files.thumbnail,
-    });
+      materials: files.materials,
+    };
+    if (req.body.courseType === "custom") {
+      postData.videos = files.videos;
+    }
+    const course = new Course(postData);
     course.categories.push(req.body.categoryId);
     await course.save();
     res.status(200).json({
@@ -106,6 +109,7 @@ const updateCourseById = async (req, res, next) => {
     if (files.thumbnail) {
       postData.thumbnail = files.thumbnail;
     }
+    postData.categories.push(req.body.categoryId);
     await Course.findOneAndUpdate(
       { _id: req.params.id },
       {

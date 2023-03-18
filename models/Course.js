@@ -63,6 +63,15 @@ const courseSchema = mongoose.Schema(
     materials: {
       type: Object,
     },
+    playlistId: {
+      type: String,
+    },
+    totalVideoCount: {
+      type: String,
+    },
+    youtubeVideos: {
+      type: Array,
+    },
   },
   { timestamps: true }
 );
