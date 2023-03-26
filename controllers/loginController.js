@@ -27,6 +27,7 @@ const handleLogin = async (req, res, next) => {
         });
         res.status(200).json({
           access_token: token,
+          data: { ...userObj, avatar: user.avatar },
           message: "Login successful!",
         });
       } else {
@@ -36,7 +37,6 @@ const handleLogin = async (req, res, next) => {
       throw createError("Login failed! Please try again.");
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       errors: {
         common: {

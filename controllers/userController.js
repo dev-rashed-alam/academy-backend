@@ -4,15 +4,17 @@ const { setCommonError } = require("../utilities/commonErrors");
 const {
   removeUploadedFile,
 } = require("../utilities/removeUploadedFileOrFolder");
+const { removeEmptyValues } = require("../utilities/helpers");
 
 const addUser = async (req, res, next) => {
   let newUser;
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   if (req.files && req.files.length > 0) {
+    const avatarLocation = process.env.APP_URL + "uploads/avatars/";
     newUser = new User({
       ...req.body,
-      avatar: req.files[0].filename,
+      avatar: avatarLocation + req.files[0].filename,
       password: hashedPassword,
     });
   } else {
@@ -49,9 +51,13 @@ const findUserById = async (req, res, next) => {
 
 const updateUserById = async (req, res, next) => {
   try {
-    const postData = { ...req.body };
+    const postData = removeEmptyValues(req.body);
     if (req.files[0]?.filename) {
-      postData.avatar = req.files[0].filename;
+      const avatarLocation = process.env.APP_URL + "uploads/avatars/";
+      postData.avatar = avatarLocation + req.files[0].filename;
+    }
+    if (req.body?.password) {
+      postData.password = await bcrypt.hash(req.body.password, 10);
     }
 
     const user = await User.findOneAndUpdate(

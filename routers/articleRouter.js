@@ -21,8 +21,8 @@ router.delete("/:id", authMiddleware, deleteArticleById);
 
 router.post(
   "/",
-  thumbnailUpload,
   authMiddleware,
+  thumbnailUpload,
   addArticleValidators,
   articleValidationHandler,
   addArticle

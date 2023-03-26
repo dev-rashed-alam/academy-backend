@@ -10,6 +10,8 @@ const {
   addUserValidationHandler,
 } = require("../middlewares/user/userValidators");
 const authMiddleware = require("../middlewares/common/authMiddleware");
+const validateConfirmPassword = require("../middlewares/login/validateConfirmPassword");
+const validationHandler = require("../middlewares/common/validationHandler");
 
 const router = express.Router();
 
@@ -21,6 +23,13 @@ router.post(
   addUserValidationHandler,
   addUser
 );
-router.put("/:id", authMiddleware, avatarUpload, updateUserById);
+router.put(
+  "/:id",
+  authMiddleware,
+  avatarUpload,
+  validateConfirmPassword,
+  validationHandler,
+  updateUserById
+);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const {
   notFoundHandler,
   errorHandler,
@@ -15,6 +16,8 @@ const courseRouter = require("./routers/courseRouter");
 
 const app = express();
 dotenv.config();
+
+app.use(cors());
 
 mongoose.set("strictQuery", true);
 mongoose.set("toJSON", {

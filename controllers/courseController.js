@@ -63,7 +63,7 @@ const addNewCourse = async (req, res, next) => {
       postData.videos = files.videos;
     }
     const course = new Course(postData);
-    course.categories.push(req.body.categoryId);
+    course.categories = req.body.categoryId;
     await course.save();
     res.status(200).json({
       message: "successful",
@@ -109,7 +109,7 @@ const updateCourseById = async (req, res, next) => {
     if (files.thumbnail) {
       postData.thumbnail = files.thumbnail;
     }
-    postData.categories.push(req.body.categoryId);
+    postData.categories = req.body.categoryId;
     await Course.findOneAndUpdate(
       { _id: req.params.id },
       {
