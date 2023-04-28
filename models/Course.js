@@ -72,6 +72,12 @@ const courseSchema = mongoose.Schema(
     youtubeVideos: {
       type: Array,
     },
+    status: {
+      type: String,
+      required: true,
+      enum: ["enable", "disable"],
+      default: "enable",
+    },
   },
   { timestamps: true }
 );

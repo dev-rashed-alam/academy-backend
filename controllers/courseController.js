@@ -6,7 +6,7 @@ const {
   removeUploadedFile,
 } = require("../utilities/removeUploadedFileOrFolder");
 
-const processUploadedFiles = (files) => {
+const processUploadedFiles = async (files, customVideoInfos) => {
   let thumbnail = null;
   let videos = [];
   let materials = {
@@ -20,10 +20,16 @@ const processUploadedFiles = (files) => {
       thumbnail = pathName;
     }
     if (item.fieldname === "videos") {
+      let videoInfo = await customVideoInfos.find(
+        (info) => info.fileName === item.originalname
+      );
       videos.push({
         url: pathName,
         name: item.originalname,
         filename: item.filename,
+        title: videoInfo.title,
+        description: videoInfo.description,
+        uploadDate: new Date(),
       });
     }
     if (item.fieldname === "materials") {
@@ -52,7 +58,8 @@ const processUploadedFiles = (files) => {
 
 const addNewCourse = async (req, res, next) => {
   try {
-    const files = processUploadedFiles(req.files);
+    let videoInfos = req.body?.videoInfos || [];
+    const files = await processUploadedFiles(req.files, videoInfos);
     let postData = {
       ...req.body,
       courseRootPath: req.courseRootPath,
@@ -104,7 +111,8 @@ const findCourseById = async (req, res, next) => {
 
 const updateCourseById = async (req, res, next) => {
   try {
-    const files = processUploadedFiles(req.files);
+    let videoInfos = req.body?.videoInfos || [];
+    const files = await processUploadedFiles(req.files, videoInfos);
     let postData = { ...req.body };
     if (files.thumbnail) {
       postData.thumbnail = files.thumbnail;
@@ -125,6 +133,7 @@ const updateCourseById = async (req, res, next) => {
       message: "successful",
     });
   } catch (error) {
+    console.log(error);
     setCommonError(res, error.message, 500);
   }
 };
