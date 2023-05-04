@@ -8,7 +8,7 @@ const { allowedFileTypes } = require("./helpers");
 const uploader = (request) => {
   const uID = uuidv4();
 
-  const processFolderPaths = (rootPath = uID) => {
+  const processFolderPaths = async (rootPath = uID) => {
     return {
       thumbnail: `courses/${rootPath}/thumbnails/`,
       videos: `courses/${rootPath}/videos/`,
@@ -19,10 +19,10 @@ const uploader = (request) => {
   const UPLOADS_FOLDER = `${__dirname}/../public/uploads/`;
 
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const { courseSecret } = req.body;
-      const subfolderPaths = processFolderPaths(courseSecret);
-      request.courseRootPath = courseSecret || uID;
+    destination: async (req, file, cb) => {
+      const courseRootPath = req.body?.courseRootPath || uID;
+      const subfolderPaths = await processFolderPaths(courseRootPath);
+      request.courseRootPath = courseRootPath;
       if (file.fieldname === "thumbnail") {
         fs.mkdirSync(UPLOADS_FOLDER + subfolderPaths.thumbnail, {
           recursive: true,
@@ -66,7 +66,7 @@ const uploader = (request) => {
   return multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-      req.courseSecret = req.body.courseSecret;
+      req.courseRootPath = req.body.courseRootPath;
       if (file.fieldname === "thumbnail") {
         checkFileType(
           file,

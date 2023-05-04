@@ -17,14 +17,14 @@ const processUploadedFiles = async (files, customVideoInfos) => {
   for (let item of files) {
     let pathName = item.path.split("/public/")[1];
     if (item.fieldname === "thumbnail") {
-      thumbnail = pathName;
+      thumbnail = process.env.APP_URL + pathName;
     }
     if (item.fieldname === "videos") {
       let videoInfo = await customVideoInfos.find(
         (info) => info.fileName === item.originalname
       );
       videos.push({
-        url: pathName,
+        url: process.env.APP_URL + pathName,
         name: item.originalname,
         filename: item.filename,
         title: videoInfo.title,
@@ -35,13 +35,13 @@ const processUploadedFiles = async (files, customVideoInfos) => {
     if (item.fieldname === "materials") {
       if (allowedFileTypes.thumbnail.includes(item.mimetype)) {
         materials.images.push({
-          url: pathName,
+          url: process.env.APP_URL + pathName,
           name: item.originalname,
           filename: item.filename,
         });
       } else {
         materials.attachments.push({
-          url: pathName,
+          url: process.env.APP_URL + pathName,
           name: item.originalname,
           filename: item.filename,
         });

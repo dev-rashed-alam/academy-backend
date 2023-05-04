@@ -6,10 +6,17 @@ const {
 
 const addArticle = async (req, res, next) => {
   try {
+    let thumbnailUrl = null;
+    if (req.files[0]?.filename) {
+      thumbnailUrl =
+        process.env.APP_URL +
+        "uploads/article/thumbnails/" +
+        req.files[0].filename;
+    }
     const newArticle = new Article({
       ...req.body,
       category: req.body.categoryId,
-      thumbnail: req.files[0].filename,
+      thumbnail: thumbnailUrl,
       user: req.loggedInUser.id,
     });
     await newArticle.save();
@@ -67,9 +74,11 @@ const updateArticleById = async (req, res, next) => {
   try {
     const postData = { ...req.body };
     if (req.files[0]?.filename) {
-      postData.thumbnail = req.files[0].filename;
+      postData.thumbnail =
+        process.env.APP_URL +
+        "uploads/article/thumbnails/" +
+        req.files[0].filename;
     }
-
     const article = await Article.findOneAndUpdate(
       { _id: req.params.id },
       { $set: postData }
@@ -77,8 +86,9 @@ const updateArticleById = async (req, res, next) => {
       .populate("category", "name")
       .populate("user", "email firstName lastName");
 
-    if (req.files[0]?.filename) {
-      removeUploadedFile(article.thumbnail, "article/thumbnails");
+    if (req.files[0]?.filename && article.thumbnail) {
+      let oldFileName = article.thumbnail.split("/article/thumbnails/")[1];
+      removeUploadedFile(oldFileName, "article/thumbnails");
     }
     res.status(200).json({
       message: "Successful!",

@@ -25,12 +25,6 @@ const addCourseValidator = [
     .withMessage("Youtube playlist id is required"),
 ];
 
-const processCourseSecret = (req, res, next) => {
-  console.log(req.body, "===");
-  next();
-};
-
 module.exports = {
   addCourseValidator,
-  processCourseSecret,
 };

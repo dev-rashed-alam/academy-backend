@@ -1,9 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/common/authMiddleware");
-const {
-  addCourseValidator,
-  processCourseSecret,
-} = require("../middlewares/course/courseValidator");
+const { addCourseValidator } = require("../middlewares/course/courseValidator");
 const validationHandler = require("../middlewares/common/validationHandler");
 const {
   addNewCourse,
