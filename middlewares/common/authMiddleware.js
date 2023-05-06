@@ -16,7 +16,7 @@ const authMiddleware = (req, res, next) => {
     res.status(401).json({
       errors: {
         common: {
-          msg: "Authentication fuilure!",
+          msg: "Authentication failure!",
         },
       },
     });

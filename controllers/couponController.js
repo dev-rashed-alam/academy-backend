@@ -37,6 +37,21 @@ const findCouponById = async (req, res, next) => {
   }
 };
 
+const checkValidity = async (req, res, next) => {
+  try {
+    const coupon = await Coupon.findOne(
+      { _id: req.params.id, expiryDate: { $gte: new Date() } },
+      { __v: 0 }
+    );
+    res.status(200).json({
+      data: coupon,
+      message: "Successful",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
 const updateCouponById = async (req, res, next) => {
   try {
     await Coupon.findOneAndUpdate({ _id: req.params.id }, { $set: req.body });
@@ -59,10 +74,23 @@ const deleteCouponById = async (req, res, next) => {
   }
 };
 
+const findAllValidCoupons = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      data: res.data,
+      message: "Successful",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   addCoupon,
   findAllCoupons,
   findCouponById,
   updateCouponById,
   deleteCouponById,
+  findAllValidCoupons,
+  checkValidity,
 };

@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const { connectDB } = require("./utilities/dbConnection");
 const {
   notFoundHandler,
   errorHandler,
@@ -13,27 +13,13 @@ const categoryRouter = require("./routers/categoryRouter");
 const articleRouter = require("./routers/articleRouter");
 const couponRouter = require("./routers/couponRouter");
 const courseRouter = require("./routers/courseRouter");
+const studentRouter = require("./routers/studentRouter");
 
 const app = express();
 dotenv.config();
 
 app.use(cors());
-
-mongoose.set("strictQuery", true);
-mongoose.set("toJSON", {
-  virtuals: true,
-  transform: (doc, converted) => {
-    delete converted._id;
-  },
-});
-mongoose
-  .connect(process.env.MONGO_CONNECTION_URL)
-  .then(() => {
-    console.log("DB connection successful!");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -46,6 +32,7 @@ app.use("/category", categoryRouter);
 app.use("/article", articleRouter);
 app.use("/coupons", couponRouter);
 app.use("/courses", courseRouter);
+app.use("/students", studentRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
