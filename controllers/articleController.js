@@ -21,23 +21,33 @@ const addArticle = async (req, res, next) => {
     });
     await newArticle.save();
     res.status(200).json({
-      message: "Article wase saved successful!",
+      message: "Article was saved successful!",
     });
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
 };
 
+const generateArticleOptionalModelChain = (req, res, next) => {
+  req.chainMethods = [
+    {
+      methodName: "populate",
+      path: "category",
+      value: "name",
+    },
+    {
+      methodName: "populate",
+      path: "user",
+      value: "email firstName lastName",
+    },
+  ];
+  next();
+};
+
 const findAllArticles = async (req, res, next) => {
   try {
-    const articles = await Article.find({}, { __v: 0 })
-      .sort({
-        createAt: -1,
-      })
-      .populate("category", "name")
-      .populate("user", "email firstName lastName");
     res.status(200).json({
-      data: articles,
+      data: res.data,
       message: "successful",
     });
   } catch (error) {
@@ -104,4 +114,5 @@ module.exports = {
   deleteArticleById,
   findArticleById,
   updateArticleById,
+  generateArticleOptionalModelChain,
 };

@@ -1,15 +1,22 @@
 const doPagination = (model) => {
   return async (req, res, next) => {
     const { page = 1, limit = 10 } = req.query;
-    const { filterQuery = {} } = req;
+    const { filterQuery = {}, chainMethods = [] } = req;
     const totalElements = await model.countDocuments(filterQuery).exec();
     const currentPage = page - 1;
-    const results = await model
+    let query = model
       .find(filterQuery, { __v: 0 })
       .limit(limit)
       .skip(currentPage * limit)
-      .sort({ createdAt: -1 })
-      .exec();
+      .sort({ createdAt: -1 });
+
+    for (const chainMethod of chainMethods) {
+      query = query[chainMethod.methodName](
+        chainMethod.path,
+        chainMethod.value
+      );
+    }
+    const results = await query.exec();
 
     res.data = {
       currentPage: parseInt(page),
