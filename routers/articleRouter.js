@@ -12,12 +12,13 @@ const {
 } = require("../middlewares/article/articleValidators");
 const thumbnailUpload = require("../middlewares/article/thumbnailUpload");
 const authMiddleware = require("../middlewares/common/authMiddleware");
+const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 
 const router = express.Router();
 
 router.get("/all", authMiddleware, findAllArticles);
-router.get("/:id", authMiddleware, findArticleById);
-router.delete("/:id", authMiddleware, deleteArticleById);
+router.get("/:id", authMiddleware, checkIsValidObjectId, findArticleById);
+router.delete("/:id", authMiddleware, checkIsValidObjectId, deleteArticleById);
 
 router.post(
   "/",

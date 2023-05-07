@@ -11,11 +11,12 @@ const {
   addCategoryValidators,
 } = require("../middlewares/category/categoryValidators");
 const validationHandler = require("../middlewares/common/validationHandler");
+const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 
 const router = express.Router();
 
 router.get("/all", authMiddleware, findAllCategories);
-router.get("/:id", authMiddleware, findCategoryById);
+router.get("/:id", authMiddleware, checkIsValidObjectId, findCategoryById);
 
 router.post(
   "/",
@@ -28,6 +29,7 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
+  checkIsValidObjectId,
   addCategoryValidators,
   validationHandler,
   updateCategoryById

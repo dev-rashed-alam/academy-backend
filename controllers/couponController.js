@@ -44,6 +44,7 @@ const checkValidity = async (req, res, next) => {
       { __v: 0 }
     );
     res.status(200).json({
+      status: !coupon ? "Coupon Expired" : "Coupon valid",
       data: coupon,
       message: "Successful",
     });
