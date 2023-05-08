@@ -12,10 +12,12 @@ const {
 } = require("../middlewares/category/categoryValidators");
 const validationHandler = require("../middlewares/common/validationHandler");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
+const { doPagination } = require("../middlewares/common/paginationMiddleware");
+const Category = require("../models/Category");
 
 const router = express.Router();
 
-router.get("/all", authMiddleware, findAllCategories);
+router.get("/all", authMiddleware, doPagination(Category), findAllCategories);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCategoryById);
 
 router.post(

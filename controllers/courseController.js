@@ -80,15 +80,20 @@ const addNewCourse = async (req, res, next) => {
   }
 };
 
+const generateCourseOptionalModelChain = (req, res, next) => {
+  req.chainMethods = [
+    {
+      methodName: "populate",
+      path: "categories",
+      value: "name",
+    },
+  ];
+  next();
+};
+
 const findAllCourses = async (req, res, next) => {
   try {
-    const courses = await Course.find({}, { __v: 0 })
-      .sort({ createdAt: -1 })
-      .populate("categories", "name");
-    res.status(200).json({
-      data: courses,
-      message: "successful",
-    });
+    res.status(200).json(res.data);
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
@@ -210,4 +215,5 @@ module.exports = {
   deleteCourseById,
   deleteCourseVideoById,
   deleteCourseMaterialById,
+  generateCourseOptionalModelChain,
 };

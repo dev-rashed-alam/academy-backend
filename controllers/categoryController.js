@@ -42,13 +42,7 @@ const deleteCategoryById = async (req, res, next) => {
 
 const findAllCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({}, { __v: 0 }).sort({
-      createAt: -1,
-    });
-    res.status(200).json({
-      data: categories,
-      message: "successful",
-    });
+    res.status(200).json(res.data);
   } catch (error) {
     setCommonError(res, error.message, 500);
   }

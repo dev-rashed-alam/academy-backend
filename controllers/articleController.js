@@ -46,10 +46,7 @@ const generateArticleOptionalModelChain = (req, res, next) => {
 
 const findAllArticles = async (req, res, next) => {
   try {
-    res.status(200).json({
-      data: res.data,
-      message: "successful",
-    });
+    res.status(200).json(res.data);
   } catch (error) {
     setCommonError(res, error.message, 500);
   }

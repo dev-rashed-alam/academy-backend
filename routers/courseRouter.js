@@ -10,9 +10,12 @@ const {
   deleteCourseById,
   deleteCourseVideoById,
   deleteCourseMaterialById,
+  generateCourseOptionalModelChain,
 } = require("../controllers/courseController");
 const courseUpload = require("../middlewares/course/courseUpload");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
+const { doPagination } = require("../middlewares/common/paginationMiddleware");
+const Course = require("../models/Course");
 
 const router = express.Router();
 
@@ -24,7 +27,13 @@ router.post(
   validationHandler,
   addNewCourse
 );
-router.get("/", authMiddleware, findAllCourses);
+router.get(
+  "/",
+  authMiddleware,
+  generateCourseOptionalModelChain,
+  doPagination(Course),
+  findAllCourses
+);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCourseById);
 router.put(
   "/:id",

@@ -27,7 +27,7 @@ router.post(
   validationHandler,
   addCoupon
 );
-router.get("/", authMiddleware, findAllCoupons);
+router.get("/", authMiddleware, doPagination(Coupon), findAllCoupons);
 router.get(
   "/valid",
   authMiddleware,

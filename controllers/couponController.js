@@ -15,11 +15,7 @@ const addCoupon = async (req, res, next) => {
 
 const findAllCoupons = async (req, res, next) => {
   try {
-    const coupons = await Coupon.find({}, { __v: 0 }).sort({ createdAt: -1 });
-    res.status(200).json({
-      data: coupons,
-      message: "Successful",
-    });
+    res.status(200).json(res.data);
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
@@ -77,10 +73,7 @@ const deleteCouponById = async (req, res, next) => {
 
 const findAllValidCoupons = async (req, res, next) => {
   try {
-    res.status(200).json({
-      data: res.data,
-      message: "Successful",
-    });
+    res.status(200).json(res.data);
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
