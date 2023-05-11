@@ -40,7 +40,7 @@ const addUserValidators = [
       try {
         const user = await User.findOne({ phoneNumber: value });
         if (user) {
-          throw createError("Phone numbe already is use!");
+          throw createError("Phone number already is use!");
         }
       } catch (err) {
         throw createError(err.message);
