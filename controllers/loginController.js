@@ -40,13 +40,13 @@ const handleLogin = async (req, res, next) => {
           message: "Login successful!",
         });
       } else {
-        throw createError("Login failed! Please try again.");
+        throw createError(401, "Login failed! Please try again.");
       }
     } else {
-      throw createError("Login failed! Please try again.");
+      throw createError(401, "Login failed! Please try again.");
     }
   } catch (err) {
-    res.status(500).json({
+    res.status(err.status).json({
       errors: {
         common: {
           msg: err.message,
