@@ -3,6 +3,7 @@ const {
   handleLogin,
   forgotPassword,
   checkOtpValidity,
+  changePassword,
 } = require("../controllers/loginController");
 const validationHandler = require("../middlewares/common/validationHandler");
 const { doLoginValidators } = require("../middlewares/login/loginValidators");
@@ -44,6 +45,13 @@ router.post(
   doForgotPasswordValidityValidation,
   validationHandler,
   checkOtpValidity
+);
+
+router.post(
+  "/change-password",
+  validateConfirmPassword,
+  validationHandler,
+  changePassword
 );
 
 module.exports = router;

@@ -20,7 +20,7 @@ const doForgotPasswordValidation = [
 ];
 
 const doForgotPasswordValidityValidation = [
-  check("otp").notEmpty().withMessage("OTP is required!").trim(),
+  check("otpNumber").notEmpty().withMessage("OTP is required!").trim(),
   check("resetToken").notEmpty().withMessage("Reset token required!").trim(),
 ];
 

@@ -1,15 +1,11 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const createError = require("http-errors");
 const User = require("../models/User");
+const ForgotPassword = require("../models/forgotPassword");
 const { setCommonError } = require("../utilities/commonErrors");
 const {
   sendMail,
   generateSixDigitRandomNumber,
-  generateResetToken,
-  numberToBase64,
-  regenerateSixDigitNumberFromToken,
-  base64ToNumber,
 } = require("../utilities/helpers");
 
 const handleLogin = async (req, res, next) => {
@@ -40,19 +36,13 @@ const handleLogin = async (req, res, next) => {
           message: "Login successful!",
         });
       } else {
-        throw createError(401, "Login failed! Please try again.");
+        setCommonError(res, "Login failed! Please try again.", 401);
       }
     } else {
-      throw createError(401, "Login failed! Please try again.");
+      setCommonError(res, "Login failed! Please try again.", 401);
     }
   } catch (err) {
-    res.status(err.status).json({
-      errors: {
-        common: {
-          msg: err.message,
-        },
-      },
-    });
+    setCommonError(res, err.message, err.status);
   }
 };
 
@@ -60,37 +50,123 @@ const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const otpNumber = generateSixDigitRandomNumber();
-    const resetToken = generateResetToken(otpNumber);
+
+    let postData = {
+      email,
+      otpNumber,
+      status: "open",
+    };
+
+    let resetInfo = await ForgotPassword.findOne({ email: email });
+
+    if (resetInfo !== null) {
+      resetInfo = await ForgotPassword.findOneAndUpdate(
+        { email: email },
+        postData
+      );
+    } else {
+      const newResetInfo = new ForgotPassword(postData);
+      resetInfo = await newResetInfo.save();
+    }
+
     await sendMail(
       email,
       "E-academy learning APP",
       `<p>Your OTP IS: ${otpNumber}</p>`
     );
+
     res.status(200).json({
-      resetToken: numberToBase64(resetToken),
+      email: resetInfo.email,
+      resetToken: resetInfo.id,
       message: "Successful",
     });
+  } catch (error) {
+    console.log(error);
+    setCommonError(res, error.message, 500);
+  }
+};
+
+const checkIsOTPExpired = (existingTime, additionalTime = 5) => {
+  const oldTime = new Date(existingTime);
+  const addingAdditionalTime = oldTime.getTime() + additionalTime * 60000;
+  const currentTime = new Date().getTime();
+  return currentTime > addingAdditionalTime;
+};
+
+const checkOtpValidity = async (req, res, next) => {
+  try {
+    const { otpNumber, resetToken } = req.body;
+    const resetInfo = await ForgotPassword.findOne({
+      _id: resetToken,
+      otpNumber: otpNumber,
+      status: "open",
+    });
+
+    if (resetInfo && resetInfo._id) {
+      const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
+      if (!isOtpExpired) {
+        await ForgotPassword.findOneAndUpdate(
+          {
+            _id: resetToken,
+          },
+          { status: "ongoing" }
+        );
+
+        res.status(200).json({
+          expiredOn: new Date(resetInfo.updatedAt).getTime() + 5 * 60000,
+          resetToken: resetToken,
+          status: "Valid OTP found!",
+          message: "Permitted for password reset!",
+        });
+      } else {
+        setCommonError(res, "Your OTP is expired!", 408);
+      }
+    } else {
+      setCommonError(res, "Invalid OTP", 404);
+    }
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
 };
 
-const checkOtpValidity = async (req, res, next) => {
+const changePassword = async (req, res, next) => {
   try {
-    const { otp, resetToken } = req.body;
-    const generatedOtp = regenerateSixDigitNumberFromToken(
-      base64ToNumber(resetToken)
-    );
-    if (parseInt(otp) === parseInt(generatedOtp)) {
-      res.status(200).json({
-        status: "Valid OTP found!",
-        message: "Permitted for password reset!",
-      });
+    const resetInfo = await ForgotPassword.findOne({
+      _id: req.body.resetToken,
+      status: "ongoing",
+    });
+
+    if (resetInfo && resetInfo._id) {
+      const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
+      if (!isOtpExpired) {
+        let postData = {};
+        if (req.body?.password) {
+          postData.password = await bcrypt.hash(req.body.password, 10);
+        }
+
+        await User.findOneAndUpdate(
+          { email: resetInfo.email },
+          { $set: postData }
+        );
+
+        await ForgotPassword.findOneAndUpdate(
+          {
+            _id: resetInfo._id,
+          },
+          { status: "closed" }
+        );
+
+        res.status(200).json({
+          message: "Successful!",
+        });
+      } else {
+        setCommonError(res, "Process timout!", 408);
+      }
     } else {
-      setCommonError(res, "Unauthorized", 401);
+      setCommonError(res, "Bad Request!", 400);
     }
   } catch (error) {
-    setCommonError(res, error.message, 500);
+    setCommonError(res, error.message, error.status);
   }
 };
 
@@ -98,4 +174,5 @@ module.exports = {
   handleLogin,
   forgotPassword,
   checkOtpValidity,
+  changePassword,
 };

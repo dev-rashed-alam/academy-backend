@@ -72,7 +72,6 @@ const coursePurchase = async (req, res, next) => {
       setCommonError(res, "Invalid Request Body!", 400);
     }
   } catch (error) {
-    console.log(error);
     setCommonError(res, error, error.status);
   }
 };
