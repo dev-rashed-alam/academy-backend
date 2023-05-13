@@ -78,6 +78,7 @@ const courseSchema = mongoose.Schema(
       enum: ["enable", "disable"],
       default: "enable",
     },
+    students: [{ type: mongoose.Types.ObjectId, ref: "Purchase" }],
   },
   { timestamps: true }
 );

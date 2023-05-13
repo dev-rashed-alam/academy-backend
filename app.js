@@ -14,6 +14,7 @@ const articleRouter = require("./routers/articleRouter");
 const couponRouter = require("./routers/couponRouter");
 const courseRouter = require("./routers/courseRouter");
 const studentRouter = require("./routers/studentRouter");
+const purchaseRouter = require("./routers/purchaseRouter");
 
 const app = express();
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/article", articleRouter);
 app.use("/coupons", couponRouter);
 app.use("/courses", courseRouter);
 app.use("/students", studentRouter);
+app.use("/purchase", purchaseRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

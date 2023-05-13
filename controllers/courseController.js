@@ -5,6 +5,7 @@ const {
   removeDirectory,
   removeUploadedFile,
 } = require("../utilities/removeUploadedFileOrFolder");
+const { isCourseAlreadyPurchased } = require("./purchaseController");
 
 const processUploadedFiles = async (files, customVideoInfos) => {
   let thumbnail = null;
@@ -88,6 +89,18 @@ const generateCourseOptionalModelChain = (req, res, next) => {
       value: "name",
     },
   ];
+  next();
+};
+
+const excludeFieldsFromList = (req, res, next) => {
+  req.excludeFields = {
+    courseRootPath: 0,
+    videos: 0,
+    materials: 0,
+    playlistId: 0,
+    youtubeVideos: 0,
+    students: 0,
+  };
   next();
 };
 
@@ -207,6 +220,26 @@ const deleteCourseMaterialById = async (req, res, next) => {
   }
 };
 
+const findCourseDetailsById = async (req, res, next) => {
+  try {
+    const isPurchased = await isCourseAlreadyPurchased(req, req.params.id);
+    let excludeFields = { ...req.excludeFields };
+    if (isPurchased) {
+      excludeFields = {};
+    }
+    const course = await Course.findOne(
+      { _id: req.params.id },
+      { __v: 0, ...excludeFields }
+    ).populate("categories", "name");
+    res.status(200).json({
+      data: course,
+      message: "successful",
+    });
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
 module.exports = {
   addNewCourse,
   findAllCourses,
@@ -216,4 +249,6 @@ module.exports = {
   deleteCourseVideoById,
   deleteCourseMaterialById,
   generateCourseOptionalModelChain,
+  excludeFieldsFromList,
+  findCourseDetailsById,
 };

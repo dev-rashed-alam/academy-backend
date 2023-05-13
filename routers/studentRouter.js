@@ -5,9 +5,12 @@ const validateConfirmPassword = require("../middlewares/login/validateConfirmPas
 const validationHandler = require("../middlewares/common/validationHandler");
 const { updateUserById } = require("../controllers/userController");
 const { generateProfileReqBody } = require("../controllers/studentController");
+const { coursePurchase } = require("../controllers/purchaseController");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 
 const router = express.Router();
+
+router.post("/course/purchase", authMiddleware, coursePurchase);
 
 router.put(
   "/profile/:id",

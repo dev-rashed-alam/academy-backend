@@ -1,11 +1,11 @@
 const doPagination = (model) => {
   return async (req, res, next) => {
     const { page = 1, limit = 10 } = req.query;
-    const { filterQuery = {}, chainMethods = [] } = req;
+    const { filterQuery = {}, chainMethods = [], excludeFields = {} } = req;
     const totalElements = await model.countDocuments(filterQuery).exec();
     const currentPage = page - 1;
     let query = model
-      .find(filterQuery, { __v: 0 })
+      .find(filterQuery, { __v: 0, ...excludeFields })
       .limit(limit)
       .skip(currentPage * limit)
       .sort({ createdAt: -1 });
