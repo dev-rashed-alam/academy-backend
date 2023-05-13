@@ -69,6 +69,7 @@ const addNewCourse = async (req, res, next) => {
     };
     if (req.body.courseType === "custom") {
       postData.videos = files.videos;
+      postData.totalVideos = files.videos?.length;
     }
     const course = new Course(postData);
     course.categories = req.body.categoryId;
@@ -99,7 +100,7 @@ const excludeFieldsFromList = (req, res, next) => {
     materials: 0,
     playlistId: 0,
     youtubeVideos: 0,
-    students: 0,
+    // students: 0,
   };
   next();
 };
