@@ -144,7 +144,7 @@ const changePassword = async (req, res, next) => {
           postData.password = await bcrypt.hash(req.body.password, 10);
         }
 
-        await User.findOneAndUpdate(
+        const user = await User.findOneAndUpdate(
           { email: resetInfo.email },
           { $set: postData }
         );
@@ -156,8 +156,22 @@ const changePassword = async (req, res, next) => {
           { status: "closed" }
         );
 
+        const userObj = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          id: user._id,
+          mobile: user.mobile,
+          email: user.email,
+          role: user.role,
+        };
+
+        const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRY,
+        });
         res.status(200).json({
-          message: "Successful!",
+          access_token: token,
+          data: { ...userObj, avatar: user.avatar },
+          message: "Login successful!",
         });
       } else {
         setCommonError(res, "Process timout!", 408);
