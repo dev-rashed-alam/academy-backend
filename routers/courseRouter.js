@@ -13,6 +13,8 @@ const {
   generateCourseOptionalModelChain,
   excludeFieldsFromList,
   findCourseDetailsById,
+  generateFilterFieldsForMyCourses,
+  findAllOfMyCourses,
 } = require("../controllers/courseController");
 const courseUpload = require("../middlewares/course/courseUpload");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
@@ -37,6 +39,15 @@ router.get(
   doPagination(Course),
   findAllCourses
 );
+router.get(
+  "/my-courses",
+  authMiddleware,
+  excludeFieldsFromList,
+  generateCourseOptionalModelChain,
+  generateFilterFieldsForMyCourses,
+  doPagination(Course),
+  findAllOfMyCourses
+);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCourseById);
 router.get(
   "/details/:id",
@@ -45,6 +56,7 @@ router.get(
   excludeFieldsFromList,
   findCourseDetailsById
 );
+
 router.put(
   "/:id",
   authMiddleware,
@@ -52,6 +64,7 @@ router.put(
   courseUpload,
   updateCourseById
 );
+
 router.delete("/:id", authMiddleware, checkIsValidObjectId, deleteCourseById);
 
 router.post(

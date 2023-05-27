@@ -113,6 +113,20 @@ const findAllCourses = async (req, res, next) => {
   }
 };
 
+const generateFilterFieldsForMyCourses = (req, res, next) => {
+  const { loggedInUser } = req;
+  req.filterQuery = { students: loggedInUser.id };
+  next();
+};
+
+const findAllOfMyCourses = async (req, res, next) => {
+  try {
+    res.status(200).json(res.data);
+  } catch (error) {
+    setCommonError(res, error.message, 500);
+  }
+};
+
 const findCourseById = async (req, res, next) => {
   try {
     const course = await Course.findOne(
@@ -252,4 +266,6 @@ module.exports = {
   generateCourseOptionalModelChain,
   excludeFieldsFromList,
   findCourseDetailsById,
+  generateFilterFieldsForMyCourses,
+  findAllOfMyCourses,
 };
