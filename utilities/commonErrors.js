@@ -1,8 +1,8 @@
-const setCommonError = (res, error, statusCode) => {
+const setCommonError = (res, message, statusCode) => {
   return res.status(statusCode).json({
     errors: {
       common: {
-        msg: error,
+        msg: message,
       },
     },
   });
