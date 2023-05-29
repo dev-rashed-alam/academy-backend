@@ -93,6 +93,16 @@ const generateCourseOptionalModelChain = (req, res, next) => {
   next();
 };
 
+const generateCourseFilters = (req, res, next) => {
+  const { search } = req.query;
+  if (search) {
+    req.filterQuery = {
+      title: { $regex: search, $options: "i" },
+    };
+  }
+  next();
+};
+
 const excludeFieldsFromList = (req, res, next) => {
   req.excludeFields = {
     courseRootPath: 0,
@@ -100,7 +110,6 @@ const excludeFieldsFromList = (req, res, next) => {
     materials: 0,
     playlistId: 0,
     youtubeVideos: 0,
-    // students: 0,
   };
   next();
 };
@@ -115,7 +124,12 @@ const findAllCourses = async (req, res, next) => {
 
 const generateFilterFieldsForMyCourses = (req, res, next) => {
   const { loggedInUser } = req;
-  req.filterQuery = { students: loggedInUser.id };
+  const { search } = req.query;
+  let query = { students: loggedInUser.id };
+  if (search) {
+    query = { ...query, title: { $regex: search, $options: "i" } };
+  }
+  req.filterQuery = query;
   next();
 };
 
@@ -268,4 +282,5 @@ module.exports = {
   findCourseDetailsById,
   generateFilterFieldsForMyCourses,
   findAllOfMyCourses,
+  generateCourseFilters,
 };

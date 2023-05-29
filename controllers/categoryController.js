@@ -40,6 +40,16 @@ const deleteCategoryById = async (req, res, next) => {
   }
 };
 
+const generateCategoryFilters = (req, res, next) => {
+  const { search } = req.query;
+  if (search) {
+    req.filterQuery = {
+      name: { $regex: search, $options: "i" },
+    };
+  }
+  next();
+};
+
 const findAllCategories = async (req, res, next) => {
   try {
     res.status(200).json(res.data);
@@ -66,4 +76,5 @@ module.exports = {
   deleteCategoryById,
   findAllCategories,
   findCategoryById,
+  generateCategoryFilters,
 };

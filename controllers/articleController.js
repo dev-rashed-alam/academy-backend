@@ -44,6 +44,16 @@ const generateArticleOptionalModelChain = (req, res, next) => {
   next();
 };
 
+const generateArticleFilters = (req, res, next) => {
+  const { search } = req.query;
+  if (search) {
+    req.filterQuery = {
+      title: { $regex: search, $options: "i" },
+    };
+  }
+  next();
+};
+
 const findAllArticles = async (req, res, next) => {
   try {
     res.status(200).json(res.data);
@@ -112,4 +122,5 @@ module.exports = {
   findArticleById,
   updateArticleById,
   generateArticleOptionalModelChain,
+  generateArticleFilters,
 };

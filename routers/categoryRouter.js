@@ -5,6 +5,7 @@ const {
   deleteCategoryById,
   findAllCategories,
   findCategoryById,
+  generateCategoryFilters,
 } = require("../controllers/categoryController");
 const authMiddleware = require("../middlewares/common/authMiddleware");
 const {
@@ -17,7 +18,13 @@ const Category = require("../models/Category");
 
 const router = express.Router();
 
-router.get("/all", authMiddleware, doPagination(Category), findAllCategories);
+router.get(
+  "/all",
+  authMiddleware,
+  generateCategoryFilters,
+  doPagination(Category),
+  findAllCategories
+);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCategoryById);
 
 router.post(

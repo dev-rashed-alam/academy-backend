@@ -7,6 +7,7 @@ const {
   findArticleById,
   updateArticleById,
   generateArticleOptionalModelChain,
+  generateArticleFilters,
 } = require("../controllers/articleController");
 const {
   addArticleValidators,
@@ -23,6 +24,7 @@ router.get(
   "/all",
   authMiddleware,
   generateArticleOptionalModelChain,
+  generateArticleFilters,
   doPagination(Article),
   findAllArticles
 );
