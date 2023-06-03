@@ -103,6 +103,16 @@ const generateCourseFilters = (req, res, next) => {
   next();
 };
 
+const generateCourseFiltersByCategoryId = (req, res, next) => {
+  const { id } = req.params;
+  if (id) {
+    req.filterQuery = {
+      categories: id,
+    };
+  }
+  next();
+};
+
 const excludeFieldsFromList = (req, res, next) => {
   req.excludeFields = {
     courseRootPath: 0,
@@ -283,4 +293,5 @@ module.exports = {
   generateFilterFieldsForMyCourses,
   findAllOfMyCourses,
   generateCourseFilters,
+  generateCourseFiltersByCategoryId,
 };
