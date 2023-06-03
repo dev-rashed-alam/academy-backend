@@ -14,7 +14,6 @@ const {
   excludeFieldsFromList,
   findCourseDetailsById,
   generateFilterFieldsForMyCourses,
-  findAllOfMyCourses,
   generateCourseFilters,
   generateCourseFiltersByCategoryId,
 } = require("../controllers/courseController");
@@ -58,7 +57,7 @@ router.get(
   generateCourseOptionalModelChain,
   generateFilterFieldsForMyCourses,
   doPagination(Course),
-  findAllOfMyCourses
+  findAllCourses
 );
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCourseById);
 router.get(

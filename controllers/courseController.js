@@ -124,9 +124,48 @@ const excludeFieldsFromList = (req, res, next) => {
   next();
 };
 
+const generateCourseIntro = (req) => {
+  const { page = 1, limit = 10, search } = req.query;
+  let filterQuery = {};
+  if (search) {
+    filterQuery.title = { $regex: search, $options: "i" };
+  }
+  const currentPage = page - 1;
+  return Course.aggregate([
+    { $match: filterQuery },
+    { $limit: parseInt(limit) },
+    { $skip: currentPage * limit },
+    {
+      $project: {
+        customVideo: { $arrayElemAt: ["$videos", 0] },
+        youtubeVideo: { $arrayElemAt: ["$youtubeVideos", 0] },
+      },
+    },
+  ]).exec();
+};
+
+const mapCourseIntro = (courseIntros = [], dataset = []) => {
+  return dataset.map((item) => {
+    let selectedCourse = courseIntros.find((intro) =>
+      intro._id.equals(item.id)
+    );
+    return {
+      ...item._doc,
+      courseIntro:
+        item.courseType === "youtube"
+          ? selectedCourse.youtubeVideo.url
+          : selectedCourse.customVideo.url || "",
+      id: item.id,
+      _id: undefined,
+    };
+  });
+};
+
 const findAllCourses = async (req, res, next) => {
   try {
-    res.status(200).json(res.data);
+    const courseIntros = await generateCourseIntro(req);
+    let modifiedData = mapCourseIntro(courseIntros, res.data.data);
+    res.status(200).json({ ...res.data, data: modifiedData });
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
@@ -141,14 +180,6 @@ const generateFilterFieldsForMyCourses = (req, res, next) => {
   }
   req.filterQuery = query;
   next();
-};
-
-const findAllOfMyCourses = async (req, res, next) => {
-  try {
-    res.status(200).json(res.data);
-  } catch (error) {
-    setCommonError(res, error.message, 500);
-  }
 };
 
 const findCourseById = async (req, res, next) => {
@@ -263,6 +294,8 @@ const findCourseDetailsById = async (req, res, next) => {
   try {
     const isPurchased = await isCourseAlreadyPurchased(req, req.params.id);
     let excludeFields = { ...req.excludeFields };
+    delete excludeFields.videos;
+    delete excludeFields.youtubeVideos;
     if (isPurchased) {
       excludeFields = {};
     }
@@ -271,7 +304,17 @@ const findCourseDetailsById = async (req, res, next) => {
       { __v: 0, ...excludeFields }
     ).populate("categories", "name");
     res.status(200).json({
-      data: course,
+      data: {
+        ...course._doc,
+        courseIntro:
+          course.courseType === "youtube"
+            ? course.youtubeVideos?.[0]?.url
+            : course.videos?.[0]?.url || "",
+        id: course.id,
+        youtubeVideos: undefined,
+        videos: undefined,
+        _id: undefined,
+      },
       message: "successful",
     });
   } catch (error) {
@@ -291,7 +334,6 @@ module.exports = {
   excludeFieldsFromList,
   findCourseDetailsById,
   generateFilterFieldsForMyCourses,
-  findAllOfMyCourses,
   generateCourseFilters,
   generateCourseFiltersByCategoryId,
 };
