@@ -120,11 +120,24 @@ const generateCourseFiltersByCategoryId = (req, res, next) => {
 const excludeFieldsFromList = (req, res, next) => {
     req.excludeFields = {
         courseRootPath: 0,
-        // videos: 0,
-        // materials: 0,
+        videos: 0,
+        materials: 0,
         playlistId: 0,
         youtubeVideos: 0,
     };
+    next();
+};
+
+const roleWiseExcludeFields = (req, res, next) => {
+    if(req.loggedInUser.role === 'student'){
+        req.excludeFields = {
+            courseRootPath: 0,
+            videos: 0,
+            materials: 0,
+            playlistId: 0,
+            youtubeVideos: 0,
+        };
+    }
     next();
 };
 
@@ -318,8 +331,6 @@ const findCourseDetailsById = async (req, res, next) => {
                         ? course.youtubeVideos?.[0]?.url
                         : course.videos?.[0]?.url || "",
                 id: course.id,
-                youtubeVideos: undefined,
-                videos: undefined,
                 _id: undefined,
             },
             message: "successful",
@@ -343,4 +354,5 @@ module.exports = {
     generateFilterFieldsForMyCourses,
     generateCourseFilters,
     generateCourseFiltersByCategoryId,
+    roleWiseExcludeFields
 };
