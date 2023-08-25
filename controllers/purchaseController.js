@@ -111,7 +111,7 @@ const findPurchaseById = async (req, res, next) => {
         const purchaseInfo = await Purchase.findOne({
             _id: req.params.id,
         }, {__v: 0})
-            .populate("courses", "id title coursePrice thumbnail courseType createdAt")
+            .populate("courses", "id title coursePrice thumbnail instructorName coursePrice courseDuration courseType createdAt")
             .populate("student", "id firstName lastName email phoneNumber avatar")
             .populate("coupon", "id percentage couponCode");
         res.status(200).json({
