@@ -1,25 +1,40 @@
 const mongoose = require("mongoose");
 
 const purchaseSchema = mongoose.Schema(
-  {
-    course: {
-      type: mongoose.Types.ObjectId,
-      ref: "Course",
+    {
+        courses: {
+            type: mongoose.Types.ObjectId,
+            ref: "Course",
+        },
+        student: {
+            type: mongoose.Types.ObjectId,
+            ref: "User",
+        },
+        coupon: {
+            type: mongoose.Types.ObjectId,
+            ref: "Coupon",
+        },
+        purchasePrice: {
+            type: String,
+            required: true,
+        },
+        totalPrice: {
+            type: String,
+            required: true,
+        },
+        paymentMethod: {
+            type: String,
+            required: true,
+        },
+        invoiceNumber: {
+            type: String,
+            required: true,
+        },
+        transactionInfos: {
+            type: Object
+        },
     },
-    student: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-    },
-    coupon: {
-      type: mongoose.Types.ObjectId,
-      ref: "Coupon",
-    },
-    purchasePrice: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
+    {timestamps: true}
 );
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);
