@@ -122,6 +122,24 @@ const findPurchaseById = async (req, res, next) => {
     }
 };
 
+const updatePurchaseById = async (req, res, next) => {
+    try {
+        await Purchase.findOneAndUpdate({
+            _id: req.params.id,
+        }, {transactionInfos: req.body.transactionInfos})
+        res.status(200).json({
+            message: "Successful!",
+        });
+    } catch (error) {
+        setCommonError(res, error, error.status);
+    }
+}
+
 module.exports = {
-    coursePurchase, isCourseAlreadyPurchased, findAllPurchaseList, findPurchaseById, generatePurchaseOptionalModelChain,
+    coursePurchase,
+    isCourseAlreadyPurchased,
+    findAllPurchaseList,
+    findPurchaseById,
+    generatePurchaseOptionalModelChain,
+    updatePurchaseById
 };

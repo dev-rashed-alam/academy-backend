@@ -6,6 +6,7 @@ const {
   findAllPurchaseList,
   findPurchaseById,
   generatePurchaseOptionalModelChain,
+  updatePurchaseById,
 } = require("../controllers/purchaseController");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 
@@ -19,5 +20,7 @@ router.get(
   findAllPurchaseList
 );
 router.get("/:id", authMiddleware, checkIsValidObjectId, findPurchaseById);
+
+router.put("/:id", authMiddleware, checkIsValidObjectId, updatePurchaseById);
 
 module.exports = router;

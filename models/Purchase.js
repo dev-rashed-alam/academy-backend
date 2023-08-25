@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const purchaseSchema = mongoose.Schema(
     {
-        courses: {
+        courses: [{
             type: mongoose.Types.ObjectId,
             ref: "Course",
-        },
+        }],
         student: {
             type: mongoose.Types.ObjectId,
             ref: "User",
