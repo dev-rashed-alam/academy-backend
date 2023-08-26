@@ -2,191 +2,191 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const ForgotPassword = require("../models/forgotPassword");
-const { setCommonError } = require("../utilities/commonErrors");
+const {setCommonError} = require("../utilities/commonErrors");
 const {
-  sendMail,
-  generateSixDigitRandomNumber,
+    sendMail,
+    generateSixDigitRandomNumber,
 } = require("../utilities/helpers");
 
 const handleLogin = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
+    try {
+        const user = await User.findOne({email: req.body.email});
 
-    if (user && user._id) {
-      const isValidPassword = await bcrypt.compare(
-        req.body.password,
-        user.password
-      );
-      if (isValidPassword) {
-        const userObj = {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          id: user._id,
-          mobile: user.mobile,
-          email: user.email,
-          role: user.role,
-        };
+        if (user && user._id) {
+            const isValidPassword = await bcrypt.compare(
+                req.body.password,
+                user.password
+            );
+            if (isValidPassword) {
+                const userObj = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    id: user._id,
+                    mobile: user.mobile,
+                    email: user.email,
+                    role: user.role,
+                };
 
-        const token = jwt.sign(userObj, process.env.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRY,
-        });
-        res.status(200).json({
-          access_token: token,
-          data: { ...userObj, avatar: user.avatar },
-          message: "Login successful!",
-        });
-      } else {
-        setCommonError(res, "Login failed! Please try again.", 401);
-      }
-    } else {
-      setCommonError(res, "Login failed! Please try again.", 401);
+                const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+                    expiresIn: process.env.JWT_EXPIRY,
+                });
+                res.status(200).json({
+                    access_token: token,
+                    data: {...userObj, avatar: user.avatar},
+                    message: "Login successful!",
+                });
+            } else {
+                setCommonError(res, "Login failed! Please try again.", 401);
+            }
+        } else {
+            setCommonError(res, "Login failed! Please try again.", 401);
+        }
+    } catch (err) {
+        setCommonError(res, err.message, err.status);
     }
-  } catch (err) {
-    setCommonError(res, err.message, err.status);
-  }
 };
 
 const forgotPassword = async (req, res, next) => {
-  try {
-    const { email } = req.body;
-    const otpNumber = generateSixDigitRandomNumber();
+    try {
+        const {email} = req.body;
+        const otpNumber = generateSixDigitRandomNumber();
 
-    let postData = {
-      email,
-      otpNumber,
-      status: "open",
-    };
+        let postData = {
+            email,
+            otpNumber,
+            status: "open",
+        };
 
-    let resetInfo = await ForgotPassword.findOne({ email: email });
+        let resetInfo = await ForgotPassword.findOne({email: email});
 
-    if (resetInfo !== null) {
-      resetInfo = await ForgotPassword.findOneAndUpdate(
-        { email: email },
-        postData
-      );
-    } else {
-      const newResetInfo = new ForgotPassword(postData);
-      resetInfo = await newResetInfo.save();
+        if (resetInfo !== null) {
+            resetInfo = await ForgotPassword.findOneAndUpdate(
+                {email: email},
+                postData
+            );
+        } else {
+            const newResetInfo = new ForgotPassword(postData);
+            resetInfo = await newResetInfo.save();
+        }
+
+        await sendMail(
+            email,
+            "E-academy learning APP",
+            `<p>Your OTP IS: ${otpNumber}</p>`
+        );
+
+        res.status(200).json({
+            email: resetInfo.email,
+            resetToken: resetInfo.id,
+            message: "Successful",
+        });
+    } catch (error) {
+        console.log(error);
+        setCommonError(res, error.message, 500);
     }
-
-    await sendMail(
-      email,
-      "E-academy learning APP",
-      `<p>Your OTP IS: ${otpNumber}</p>`
-    );
-
-    res.status(200).json({
-      email: resetInfo.email,
-      resetToken: resetInfo.id,
-      message: "Successful",
-    });
-  } catch (error) {
-    console.log(error);
-    setCommonError(res, error.message, 500);
-  }
 };
 
 const checkIsOTPExpired = (existingTime, additionalTime = 5) => {
-  const oldTime = new Date(existingTime);
-  const addingAdditionalTime = oldTime.getTime() + additionalTime * 60000;
-  const currentTime = new Date().getTime();
-  return currentTime > addingAdditionalTime;
+    const oldTime = new Date(existingTime);
+    const addingAdditionalTime = oldTime.getTime() + additionalTime * 60000;
+    const currentTime = new Date().getTime();
+    return currentTime > addingAdditionalTime;
 };
 
 const checkOtpValidity = async (req, res, next) => {
-  try {
-    const { otpNumber, resetToken } = req.body;
-    const resetInfo = await ForgotPassword.findOne({
-      _id: resetToken,
-      otpNumber: otpNumber,
-      status: "open",
-    });
-
-    if (resetInfo && resetInfo._id) {
-      const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
-      if (!isOtpExpired) {
-        await ForgotPassword.findOneAndUpdate(
-          {
+    try {
+        const {otpNumber, resetToken} = req.body;
+        const resetInfo = await ForgotPassword.findOne({
             _id: resetToken,
-          },
-          { status: "ongoing" }
-        );
-
-        res.status(200).json({
-          expiredOn: new Date(resetInfo.updatedAt).getTime() + 5 * 60000,
-          resetToken: resetToken,
-          status: "Valid OTP found!",
-          message: "Permitted for password reset!",
+            otpNumber: otpNumber,
+            status: "open",
         });
-      } else {
-        setCommonError(res, "Your OTP is expired!", 408);
-      }
-    } else {
-      setCommonError(res, "Invalid OTP", 404);
+
+        if (resetInfo && resetInfo._id) {
+            const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
+            if (!isOtpExpired) {
+                await ForgotPassword.findOneAndUpdate(
+                    {
+                        _id: resetToken,
+                    },
+                    {status: "ongoing"}
+                );
+
+                res.status(200).json({
+                    expiredOn: new Date(resetInfo.updatedAt).getTime() + 5 * 60000,
+                    resetToken: resetToken,
+                    status: "Valid OTP found!",
+                    message: "Permitted for password reset!",
+                });
+            } else {
+                setCommonError(res, "Your OTP is expired!", 408);
+            }
+        } else {
+            setCommonError(res, "Invalid OTP", 404);
+        }
+    } catch (error) {
+        setCommonError(res, error.message, 500);
     }
-  } catch (error) {
-    setCommonError(res, error.message, 500);
-  }
 };
 
 const changePassword = async (req, res, next) => {
-  try {
-    const resetInfo = await ForgotPassword.findOne({
-      _id: req.body.resetToken,
-      status: "ongoing",
-    });
+    try {
+        const resetInfo = await ForgotPassword.findOne({
+            _id: req.body.resetToken,
+            status: "ongoing",
+        });
 
-    if (resetInfo && resetInfo._id) {
-      const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
-      if (!isOtpExpired) {
-        let postData = {};
-        if (req.body?.password) {
-          postData.password = await bcrypt.hash(req.body.password, 10);
+        if (resetInfo && resetInfo._id) {
+            const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
+            if (!isOtpExpired) {
+                let postData = {};
+                if (req.body?.password) {
+                    postData.password = await bcrypt.hash(req.body.password, 10);
+                }
+
+                const user = await User.findOneAndUpdate(
+                    {email: resetInfo.email},
+                    {$set: postData}
+                );
+
+                await ForgotPassword.findOneAndUpdate(
+                    {
+                        _id: resetInfo._id,
+                    },
+                    {status: "closed"}
+                );
+
+                const userObj = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    id: user._id,
+                    mobile: user.mobile,
+                    email: user.email,
+                    role: user.role,
+                };
+
+                const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+                    expiresIn: process.env.JWT_EXPIRY,
+                });
+                res.status(200).json({
+                    access_token: token,
+                    data: {...userObj, avatar: user.avatar},
+                    message: "Login successful!",
+                });
+            } else {
+                setCommonError(res, "Process timout!", 408);
+            }
+        } else {
+            setCommonError(res, "Bad Request!", 400);
         }
-
-        const user = await User.findOneAndUpdate(
-          { email: resetInfo.email },
-          { $set: postData }
-        );
-
-        await ForgotPassword.findOneAndUpdate(
-          {
-            _id: resetInfo._id,
-          },
-          { status: "closed" }
-        );
-
-        const userObj = {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          id: user._id,
-          mobile: user.mobile,
-          email: user.email,
-          role: user.role,
-        };
-
-        const token = jwt.sign(userObj, process.env.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRY,
-        });
-        res.status(200).json({
-          access_token: token,
-          data: { ...userObj, avatar: user.avatar },
-          message: "Login successful!",
-        });
-      } else {
-        setCommonError(res, "Process timout!", 408);
-      }
-    } else {
-      setCommonError(res, "Bad Request!", 400);
+    } catch (error) {
+        setCommonError(res, error.message, error.status);
     }
-  } catch (error) {
-    setCommonError(res, error.message, error.status);
-  }
 };
 
 module.exports = {
-  handleLogin,
-  forgotPassword,
-  checkOtpValidity,
-  changePassword,
+    handleLogin,
+    forgotPassword,
+    checkOtpValidity,
+    changePassword,
 };
