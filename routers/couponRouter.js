@@ -35,7 +35,7 @@ router.get(
   doPagination(Coupon),
   findAllValidCoupons
 );
-router.get("/isValid/:id", authMiddleware, checkIsValidObjectId, checkValidity);
+router.get("/isValid/:code", authMiddleware, checkValidity);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCouponById);
 router.put("/:id", authMiddleware, checkIsValidObjectId, updateCouponById);
 router.delete("/:id", authMiddleware, checkIsValidObjectId, deleteCouponById);

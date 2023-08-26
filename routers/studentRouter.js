@@ -3,24 +3,25 @@ const authMiddleware = require("../middlewares/common/authMiddleware");
 const avatarUpload = require("../middlewares/user/avatarUpload");
 const validateConfirmPassword = require("../middlewares/login/validateConfirmPassword");
 const validationHandler = require("../middlewares/common/validationHandler");
-const { updateUserById } = require("../controllers/userController");
-const { generateProfileReqBody } = require("../controllers/studentController");
-const { coursePurchase } = require("../controllers/purchaseController");
+const {updateUserById} = require("../controllers/userController");
+const {generateProfileReqBody} = require("../controllers/studentController");
+const {coursePurchase, verifyCoursePurchase} = require("../controllers/purchaseController");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 
 const router = express.Router();
 
 router.post("/course/purchase", authMiddleware, coursePurchase);
+router.post("/course/purchase/verify", authMiddleware, verifyCoursePurchase);
 
 router.put(
-  "/profile/:id",
-  authMiddleware,
-  checkIsValidObjectId,
-  avatarUpload,
-  validateConfirmPassword,
-  validationHandler,
-  generateProfileReqBody,
-  updateUserById
+    "/profile/:id",
+    authMiddleware,
+    checkIsValidObjectId,
+    avatarUpload,
+    validateConfirmPassword,
+    validationHandler,
+    generateProfileReqBody,
+    updateUserById
 );
 
 module.exports = router;
