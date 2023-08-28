@@ -35,7 +35,7 @@ const purchaseReportByWeek = async (req, res, next) => {
                 $gte: startOfWeek,
                 $lte: endOfWeek
             }
-        })
+        }, {__v: 0})
 
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dataByWeekday = {};
@@ -50,11 +50,9 @@ const purchaseReportByWeek = async (req, res, next) => {
 
             dataByWeekday[weekdayName].push(entry);
         });
-
-        console.log(dataByWeekday)
         res.status(200).json({
             message: "Successful!",
-            data: {}
+            data: dataByWeekday
         });
     } catch (error) {
         setCommonError(res, error.message, error.status);
@@ -63,10 +61,33 @@ const purchaseReportByWeek = async (req, res, next) => {
 
 const purchaseReportByYear = async (req, res, next) => {
     try {
-        const purchases = await Purchase.find()
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1);
+        const endOfYear = new Date(currentYear + 1, 0, 1);
+
+        const purchases = await Purchase.find({
+            timestamp: {
+                $gte: startOfYear,
+                $lt: endOfYear
+            }
+        }, {__v: 0})
+
+        const dataByMonth = {};
+
+        purchases.forEach(entry => {
+            const month = entry.createdAt.getMonth();
+            const monthName = new Date(0, month).toLocaleString('default', {month: 'long'});
+
+            if (!dataByMonth[monthName]) {
+                dataByMonth[monthName] = [];
+            }
+
+            dataByMonth[monthName].push(entry);
+        });
+
         res.status(200).json({
             message: "Successful!",
-            data: {}
+            data: dataByMonth
         });
     } catch (error) {
         setCommonError(res, error.message, error.status);
