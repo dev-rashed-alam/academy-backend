@@ -6,6 +6,7 @@ const {
     removeUploadedFile,
 } = require("../utilities/removeUploadedFileOrFolder");
 const {isCourseAlreadyPurchased} = require("./purchaseController");
+const Purchase = require("../models/Purchase")
 
 const processUploadedFiles = async (files, customVideoInfos, materialInfos) => {
     let thumbnail = null;
@@ -199,6 +200,48 @@ const generateFilterFieldsForMyCourses = (req, res, next) => {
     next();
 };
 
+const generateFilterFieldsForPopularCourses = (req, res, next) => {
+    const {search} = req.query;
+    let query = { students: { $exists: true, $not: { $size: 0 } } };
+    if (search) {
+        query = {...query, title: {$regex: search, $options: "i"}};
+    }
+    req.filterQuery = query;
+    next();
+};
+
+const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const purchases = await Purchase.find({
+        createdAt: {
+            $gte: today,
+            $lt: tomorrow
+        }
+    }).populate('courses', '_id')
+
+    const courseIds = [];
+    purchases.forEach(item => {
+        courseIds.push(...item.courses.map(course => course._id));
+    })
+
+    const {search} = req.query;
+    let query = {
+        _id: {
+            $in: courseIds
+        }
+    }
+    if (search) {
+        query = {...query, title: {$regex: search, $options: "i"}};
+    }
+    req.filterQuery = query;
+    next();
+};
+
 const findCourseById = async (req, res, next) => {
     try {
         const course = await Course.findOne(
@@ -354,5 +397,7 @@ module.exports = {
     generateFilterFieldsForMyCourses,
     generateCourseFilters,
     generateCourseFiltersByCategoryId,
-    roleWiseExcludeFields
+    roleWiseExcludeFields,
+    generateFilterFieldsForPopularCourses,
+    generateFilterFieldsForTrendingCourses
 };

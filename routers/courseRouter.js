@@ -16,7 +16,7 @@ const {
     generateFilterFieldsForMyCourses,
     generateCourseFilters,
     generateCourseFiltersByCategoryId,
-    roleWiseExcludeFields,
+    roleWiseExcludeFields, generateFilterFieldsForPopularCourses, generateFilterFieldsForTrendingCourses,
 } = require("../controllers/courseController");
 const courseUpload = require("../middlewares/course/courseUpload");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
@@ -57,6 +57,24 @@ router.get(
     excludeFieldsFromList,
     generateCourseOptionalModelChain,
     generateFilterFieldsForMyCourses,
+    doPagination(Course),
+    findAllCourses
+);
+router.get(
+    "/trending-courses",
+    authMiddleware,
+    roleWiseExcludeFields,
+    generateCourseOptionalModelChain,
+    generateFilterFieldsForTrendingCourses,
+    doPagination(Course),
+    findAllCourses
+);
+router.get(
+    "/popular-courses",
+    authMiddleware,
+    roleWiseExcludeFields,
+    generateCourseOptionalModelChain,
+    generateFilterFieldsForPopularCourses,
     doPagination(Course),
     findAllCourses
 );
