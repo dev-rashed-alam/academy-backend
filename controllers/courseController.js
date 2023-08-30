@@ -214,15 +214,15 @@ const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
     const purchases = await Purchase.find({
         createdAt: {
-            $gte: today,
-            $lt: tomorrow
+            $gte: sevenDaysAgo,
+            $lte: today
         }
-    }).populate('courses', '_id')
+    }).populate('courses', '_id');
 
     const courseIds = [];
     purchases.forEach(item => {
