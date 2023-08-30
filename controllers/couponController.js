@@ -71,20 +71,11 @@ const deleteCouponById = async (req, res, next) => {
     }
 };
 
-const findAllValidCoupons = async (req, res, next) => {
-    try {
-        res.status(200).json(res.data);
-    } catch (error) {
-        setCommonError(res, error.message, 500);
-    }
-};
-
 module.exports = {
     addCoupon,
     findAllCoupons,
     findCouponById,
     updateCouponById,
     deleteCouponById,
-    findAllValidCoupons,
     checkValidity,
 };

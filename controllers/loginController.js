@@ -12,7 +12,7 @@ const handleLogin = async (req, res, next) => {
     try {
         const user = await User.findOne({email: req.body.email});
 
-        if (user && user._id) {
+        if (user?._id) {
             const isValidPassword = await bcrypt.compare(
                 req.body.password,
                 user.password
@@ -102,7 +102,7 @@ const checkOtpValidity = async (req, res, next) => {
             status: "open",
         });
 
-        if (resetInfo && resetInfo._id) {
+        if (resetInfo?._id) {
             const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
             if (!isOtpExpired) {
                 await ForgotPassword.findOneAndUpdate(
@@ -136,7 +136,7 @@ const changePassword = async (req, res, next) => {
             status: "ongoing",
         });
 
-        if (resetInfo && resetInfo._id) {
+        if (resetInfo?._id) {
             const isOtpExpired = checkIsOTPExpired(resetInfo.updatedAt);
             if (!isOtpExpired) {
                 let postData = {};

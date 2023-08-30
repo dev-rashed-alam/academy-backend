@@ -7,7 +7,7 @@ const findAllCounts = async (req, res, next) => {
         const totalStudent = await User.countDocuments({role: 'student'})
         const totalCourse = await Course.countDocuments()
         const purchases = await Purchase.find()
-        const totalSale = purchases.reduce((total, item) => total += parseInt(item.purchasePrice), 0)
+        const totalSale = purchases.reduce((total, item) => total + parseInt(item.purchasePrice), 0)
         res.status(200).json({
             message: "Successful!",
             data: {

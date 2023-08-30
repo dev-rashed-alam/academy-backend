@@ -9,7 +9,6 @@ const {
   findCouponById,
   updateCouponById,
   deleteCouponById,
-  findAllValidCoupons,
   checkValidity,
 } = require("../controllers/couponController");
 const {
@@ -33,7 +32,7 @@ router.get(
   authMiddleware,
   generateFilterFieldsForValidCoupons,
   doPagination(Coupon),
-  findAllValidCoupons
+  findAllCoupons
 );
 router.get("/isValid/:code", authMiddleware, checkValidity);
 router.get("/:id", authMiddleware, checkIsValidObjectId, findCouponById);

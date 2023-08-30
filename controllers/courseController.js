@@ -290,7 +290,7 @@ const updateCourseById = async (req, res, next) => {
 const deleteCourseById = async (req, res, next) => {
     try {
         const course = await Course.findOneAndDelete({_id: req.params.id});
-        await removeDirectory(`courses/${course.courseRootPath}`);
+        removeDirectory(`courses/${course.courseRootPath}`);
         res.status(200).json({
             message: "successful",
         });
@@ -304,7 +304,7 @@ const deleteCourseVideoById = async (req, res, next) => {
         const filename = req.body.filename;
         const course = await Course.findOne({_id: req.params.id});
         const pathname = `courses/${course.courseRootPath}/videos`;
-        await removeUploadedFile(filename, pathname);
+        removeUploadedFile(filename, pathname);
 
         const modifiedVideos = course.videos.filter(
             (video) => video.filename !== filename
@@ -328,7 +328,7 @@ const deleteCourseMaterialById = async (req, res, next) => {
         const materialType = req.body.materialType;
         const course = await Course.findOne({_id: req.params.id});
         const pathname = `courses/${course.courseRootPath}/materials`;
-        await removeUploadedFile(filename, pathname);
+        removeUploadedFile(filename, pathname);
 
         const modifiedMaterials = course.materials[materialType].filter(
             (material) => material.filename !== filename
