@@ -213,9 +213,10 @@ const generateFilterFieldsForPopularCourses = (req, res, next) => {
 const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+    console.log(sevenDaysAgo, today)
 
     const purchases = await Purchase.find({
         createdAt: {
@@ -223,7 +224,7 @@ const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
             $lte: today
         }
     }).populate('courses', '_id');
-
+    console.log(purchases)
     const courseIds = [];
     purchases.forEach(item => {
         courseIds.push(...item.courses.map(course => course._id));
