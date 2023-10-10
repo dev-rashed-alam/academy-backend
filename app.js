@@ -7,16 +7,7 @@ const {
   notFoundHandler,
   errorHandler,
 } = require("./middlewares/common/errorHandler");
-const loginRouter = require("./routers/loginRouter");
-const userRouter = require("./routers/userRouter");
-const categoryRouter = require("./routers/categoryRouter");
-const articleRouter = require("./routers/articleRouter");
-const couponRouter = require("./routers/couponRouter");
-const courseRouter = require("./routers/courseRouter");
-const studentRouter = require("./routers/studentRouter");
-const purchaseRouter = require("./routers/purchaseRouter");
-const searchRouter = require("./routers/searchRouter");
-const dashboardRouter = require("./routers/dashboardRouter");
+const academyRouter = require("./routers/academyRouter");
 
 const app = express();
 dotenv.config();
@@ -29,16 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", loginRouter);
-app.use("/users", userRouter);
-app.use("/category", categoryRouter);
-app.use("/article", articleRouter);
-app.use("/coupons", couponRouter);
-app.use("/courses", courseRouter);
-app.use("/students", studentRouter);
-app.use("/purchase", purchaseRouter);
-app.use("/search", searchRouter);
-app.use("/dashboard", dashboardRouter);
+app.use("/academy", academyRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
