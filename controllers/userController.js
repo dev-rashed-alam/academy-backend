@@ -26,9 +26,7 @@ const addUser = async (req, res, next) => {
 
   try {
     await newUser.save();
-    res.status(200).json({
-      message: "User was added successfully!",
-    });
+    next()
   } catch (error) {
     setCommonError(res, error.message, 500);
   }
