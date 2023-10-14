@@ -5,7 +5,7 @@ const ForgotPassword = require("../models/forgotPassword");
 const {setCommonError} = require("../utilities/commonErrors");
 const {
     sendMail,
-    generateSixDigitRandomNumber,
+    generateSixDigitRandomNumber, removeEmptyValues,
 } = require("../utilities/helpers");
 
 const handleLogin = async (req, res, next) => {
@@ -184,9 +184,57 @@ const changePassword = async (req, res, next) => {
     }
 };
 
+const isOldPasswordMatched = async (req, res, next) => {
+    try {
+        const user = await User.findOne({email: req.loggedInUser.email});
+        if (user?._id) {
+            const isValidPassword = await bcrypt.compare(
+                req.body.oldPassword,
+                user.password
+            );
+            if (isValidPassword) {
+                next()
+            } else {
+                res.status(403).json({
+                    errors: {
+                        oldPassword: {
+                            value: req.body.oldPassword,
+                            msg: "Old password is incorrect",
+                            param: "oldPassword",
+                            location: "body"
+                        }
+                    },
+                });
+            }
+        }
+    } catch (error) {
+        setCommonError(res, error.message, error.status);
+    }
+}
+
+const updatePassword = async (req, res, next) => {
+    try {
+        const postData = {};
+        if (req.body?.password) {
+            postData.password = await bcrypt.hash(req.body.password, 10);
+        }
+        await User.findOneAndUpdate(
+            {_id: req.loggedInUser.id},
+            {$set: postData}
+        );
+        res.status(200).json({
+            message: "Successful!",
+        });
+    } catch (error) {
+        setCommonError(res, error.message, error.status)
+    }
+}
+
 module.exports = {
     handleLogin,
     forgotPassword,
     checkOtpValidity,
     changePassword,
+    isOldPasswordMatched,
+    updatePassword
 };
