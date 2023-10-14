@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/academy", academyRouter);
+app.use("/", academyRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
