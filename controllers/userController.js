@@ -65,8 +65,18 @@ const updateUserById = async (req, res, next) => {
     if (req.files[0]?.filename) {
       removeUploadedFile(user.avatar, "avatars");
     }
+    const updatedUser = await User.findOne(
+        { _id: req.params.id }
+    );
     res.status(200).json({
       message: "Successful!",
+      data: {
+        id: updatedUser.id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        avatar: updatedUser.avatar
+      }
     });
   } catch (error) {
     setCommonError(res, error.message, 500);
