@@ -30,7 +30,7 @@ const doGlobalSearch = async (req, res, next) => {
                 {__v: 0}
             ).populate("category", "name");
             res.status(200).json({
-                modifiedData,
+                course: modifiedData,
                 article,
                 category,
             });
