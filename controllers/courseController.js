@@ -400,5 +400,7 @@ module.exports = {
     generateCourseFiltersByCategoryId,
     roleWiseExcludeFields,
     generateFilterFieldsForPopularCourses,
-    generateFilterFieldsForTrendingCourses
+    generateFilterFieldsForTrendingCourses,
+    generateCourseIntro,
+    mapCourseIntro
 };

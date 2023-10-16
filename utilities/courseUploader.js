@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { allowedFileTypes } = require("./helpers");
 
-const uploader = (request) => {
+const uploader = (request, max_file_size) => {
   const uID = uuidv4();
 
   const processFolderPaths = async (rootPath = uID) => {
@@ -65,6 +65,9 @@ const uploader = (request) => {
 
   return multer({
     storage: storage,
+    limits: {
+      fileSize: max_file_size,
+    },
     fileFilter: (req, file, cb) => {
       req.courseRootPath = req.body.courseRootPath;
       if (file.fieldname === "thumbnail") {
