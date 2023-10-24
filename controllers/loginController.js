@@ -5,8 +5,10 @@ const ForgotPassword = require("../models/forgotPassword");
 const {setCommonError} = require("../utilities/commonErrors");
 const {
     sendMail,
-    generateSixDigitRandomNumber, removeEmptyValues,
+    generateSixDigitRandomNumber,
 } = require("../utilities/helpers");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.O_AUTH_CLIENT_ID);
 
 const handleLogin = async (req, res, next) => {
     try {
@@ -230,11 +232,30 @@ const updatePassword = async (req, res, next) => {
     }
 }
 
+const verifyGoogleAuthToken = async (req, res, next) => {
+    try {
+        const {body} = req;
+        const ticket = await client.verifyIdToken({
+            idToken: body.token,
+            audience: process.env.O_AUTH_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+        console.log(body, userid, payload)
+        res.status(200).json({
+            message: "Successful!",
+        });
+    }catch (error){
+        setCommonError(res, error.message, error.status)
+    }
+}
+
 module.exports = {
     handleLogin,
     forgotPassword,
     checkOtpValidity,
     changePassword,
     isOldPasswordMatched,
-    updatePassword
+    updatePassword,
+    verifyGoogleAuthToken
 };

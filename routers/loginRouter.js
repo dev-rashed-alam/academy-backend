@@ -4,7 +4,9 @@ const {
     forgotPassword,
     checkOtpValidity,
     changePassword,
-    isOldPasswordMatched, updatePassword,
+    isOldPasswordMatched,
+    updatePassword,
+    verifyGoogleAuthToken
 } = require("../controllers/loginController");
 const validationHandler = require("../middlewares/common/validationHandler");
 const {doLoginValidators, doPasswordChangeValidators} = require("../middlewares/login/loginValidators");
@@ -65,5 +67,6 @@ router.post(
     isOldPasswordMatched,
     updatePassword
 );
+router.post('/verify/google-auth-token', verifyGoogleAuthToken)
 
 module.exports = router;
