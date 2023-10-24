@@ -1,5 +1,5 @@
 const express = require("express");
-const dotenv = require("dotenv");
+require("dotenv").config();
 const path = require("path");
 const cors = require("cors");
 const { connectDB } = require("./utilities/dbConnection");
@@ -10,7 +10,6 @@ const {
 const academyRouter = require("./routers/academyRouter");
 
 const app = express();
-dotenv.config();
 
 app.use(cors());
 connectDB();

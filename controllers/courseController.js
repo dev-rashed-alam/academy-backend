@@ -216,15 +216,12 @@ const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
-    console.log(sevenDaysAgo, today)
-
     const purchases = await Purchase.find({
         createdAt: {
             $gte: sevenDaysAgo,
             $lte: today
         }
     }).populate('courses', '_id');
-    console.log(purchases)
     const courseIds = [];
     purchases.forEach(item => {
         courseIds.push(...item.courses.map(course => course._id));
@@ -334,8 +331,6 @@ const deleteCourseMaterialById = async (req, res, next) => {
         const modifiedMaterials = course.materials[materialType].filter(
             (material) => material.filename !== filename
         );
-
-        console.log(modifiedMaterials)
 
         await Course.updateOne(
             {_id: req.params.id},

@@ -1,5 +1,4 @@
 const createError = require("http-errors");
-const {isValidObjectId} = require("mongoose");
 const Purchase = require("../models/Purchase");
 const Course = require("../models/Course");
 const Coupon = require("../models/Coupon");
@@ -44,7 +43,6 @@ const checkAvailableCourses = async (req) => {
         }
     })
     const availableCourseIds = availableCourses.map(item => item._id)
-
     validCourses.forEach(item => {
         let isAvailable = availableCourseIds.find(id => id.equals(item))
         if (isAvailable) {
@@ -79,7 +77,8 @@ const coursePurchase = async (req, res, next) => {
                     purchasePrice: body.purchasePrice,
                     totalPrice: body.totalPrice,
                     paymentMethod: body.paymentMethod,
-                    invoiceNumber: `#${Date.now()}`
+                    invoiceNumber: `#${Date.now()}`,
+                    transactionInfos: body.transactionInfos,
                 };
 
                 const purchase = new Purchase(postData);
