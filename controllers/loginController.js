@@ -7,7 +7,7 @@ const {
     sendMail,
     generateSixDigitRandomNumber,
 } = require("../utilities/helpers");
-const { OAuth2Client } = require('google-auth-library');
+const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.O_AUTH_CLIENT_ID);
 
 const handleLogin = async (req, res, next) => {
@@ -15,30 +15,34 @@ const handleLogin = async (req, res, next) => {
         const user = await User.findOne({email: req.body.email});
 
         if (user?._id) {
-            const isValidPassword = await bcrypt.compare(
-                req.body.password,
-                user.password
-            );
-            if (isValidPassword) {
-                const userObj = {
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    id: user._id,
-                    mobile: user.mobile,
-                    email: user.email,
-                    role: user.role,
-                };
-
-                const token = jwt.sign(userObj, process.env.JWT_SECRET, {
-                    expiresIn: process.env.JWT_EXPIRY,
-                });
-                res.status(200).json({
-                    access_token: token,
-                    data: {...userObj, avatar: user.avatar},
-                    message: "Login successful!",
-                });
+            if (user?.registrationType === 'google_service') {
+                setCommonError(res, "This email is associated with google! Please try google auth.", 402);
             } else {
-                setCommonError(res, "Login failed! Please try again.", 401);
+                const isValidPassword = await bcrypt.compare(
+                    req.body.password,
+                    user.password
+                );
+                if (isValidPassword) {
+                    const userObj = {
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        id: user._id,
+                        mobile: user.mobile,
+                        email: user.email,
+                        role: user.role,
+                    };
+
+                    const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+                        expiresIn: process.env.JWT_EXPIRY,
+                    });
+                    res.status(200).json({
+                        access_token: token,
+                        data: {...userObj, avatar: user.avatar},
+                        message: "Login successful!",
+                    });
+                } else {
+                    setCommonError(res, "Login failed! Please try again.", 401);
+                }
             }
         } else {
             setCommonError(res, "Login failed! Please try again.", 401);
@@ -232,6 +236,23 @@ const updatePassword = async (req, res, next) => {
     }
 }
 
+const doGoogleLogin = async (data) => {
+    const userObj = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        id: data._id,
+        email: data.email,
+        role: data.role,
+    };
+
+    const token = jwt.sign(userObj, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRY,
+    });
+    return {
+        token, avatar: data.avatar, userObj
+    }
+}
+
 const verifyGoogleAuthToken = async (req, res, next) => {
     try {
         const {body} = req;
@@ -240,12 +261,29 @@ const verifyGoogleAuthToken = async (req, res, next) => {
             audience: process.env.O_AUTH_CLIENT_ID
         });
         const payload = ticket.getPayload();
-        const userid = payload['sub'];
-        console.log(body, userid, payload)
-        res.status(200).json({
-            message: "Successful!",
-        });
-    }catch (error){
+        let user = await User.findOne({email: payload.email});
+        if (user?.id && user.registrationType !== 'google_service') {
+            setCommonError(res, "This email is already exist!", 402);
+        } else {
+            if (user === null) {
+                const newUser = new User({
+                    firstName: payload.given_name,
+                    lastName: payload.family_name,
+                    email: payload.email,
+                    avatar: payload.picture,
+                    password: process.env.JWT_SECRET,
+                    registrationType: 'google_service'
+                });
+                user = await newUser.save();
+            }
+            const data = await doGoogleLogin(user)
+            res.status(200).json({
+                access_token: data.token,
+                data: {...data.userObj, avatar: data.avatar},
+                message: "Login successful!",
+            });
+        }
+    } catch (error) {
         setCommonError(res, error.message, error.status)
     }
 }
