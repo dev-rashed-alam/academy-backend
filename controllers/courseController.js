@@ -171,7 +171,7 @@ const mapCourseIntro = (courseIntros = [], dataset = []) => {
             ...item._doc,
             courseIntro:
                 item.courseType === "youtube"
-                    ? selectedCourse.youtubeVideo.url
+                    ? selectedCourse?.youtubeVideo?.url || ""
                     : selectedCourse.customVideo.url || "",
             id: item.id,
             _id: undefined,
@@ -185,6 +185,7 @@ const findAllCourses = async (req, res, next) => {
         let modifiedData = mapCourseIntro(courseIntros, res.data.data);
         res.status(200).json({...res.data, data: modifiedData});
     } catch (error) {
+        console.log(error)
         setCommonError(res, error.message, 500);
     }
 };
