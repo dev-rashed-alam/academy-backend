@@ -79,6 +79,7 @@ const updateUserById = async (req, res, next) => {
             }
         });
     } catch (error) {
+        console.log(error)
         setCommonError(res, error.message, 500);
     }
 };
