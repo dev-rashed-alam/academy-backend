@@ -7,6 +7,7 @@ const {
 } = require("../utilities/removeUploadedFileOrFolder");
 const {isCourseAlreadyPurchased} = require("./purchaseController");
 const Purchase = require("../models/Purchase")
+const MCQ = require("../models/McqSchema");
 
 const processUploadedFiles = async (files, customVideoInfos, materialInfos) => {
     let thumbnail = null;
@@ -63,6 +64,10 @@ const processUploadedFiles = async (files, customVideoInfos, materialInfos) => {
 
 const addNewCourse = async (req, res, next) => {
     try {
+        let createdMCQs = null
+        if (req.body?.mcqs) {
+            createdMCQs = await MCQ.insertMany(req.body.mcqs);
+        }
         let videoInfos = req.body?.videoInfos || [];
         let materialInfos = req.body?.materialInfos || [];
         const files = await processUploadedFiles(req.files, videoInfos, materialInfos);
@@ -78,6 +83,9 @@ const addNewCourse = async (req, res, next) => {
         }
         const course = new Course(postData);
         course.categories = req.body.categoryId;
+        if (createdMCQs !== null) {
+            course.mcqs.push(...createdMCQs.map(mcq => mcq._id))
+        }
         await course.save();
         res.status(200).json({
             message: "successful",
@@ -130,7 +138,7 @@ const excludeFieldsFromList = (req, res, next) => {
 };
 
 const roleWiseExcludeFields = (req, res, next) => {
-    if(req.loggedInUser.role === 'student'){
+    if (req.loggedInUser.role === 'student') {
         req.excludeFields = {
             courseRootPath: 0,
             videos: 0,
@@ -203,7 +211,7 @@ const generateFilterFieldsForMyCourses = (req, res, next) => {
 
 const generateFilterFieldsForPopularCourses = (req, res, next) => {
     const {search} = req.query;
-    let query = { students: { $exists: true, $not: { $size: 0 } } };
+    let query = {students: {$exists: true, $not: {$size: 0}}};
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
     }

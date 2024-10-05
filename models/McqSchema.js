@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const optionSchema = mongoose.Schema({
+const optionSchema = new mongoose.Schema({
     text: {
         type: String,
         required: true
@@ -11,12 +11,12 @@ const optionSchema = mongoose.Schema({
     }
 });
 
-const questionSchema = mongoose.Schema({
+const questionSchema = new mongoose.Schema({
     questionText: {
         type: String,
         required: true
     },
-    options: [{type: mongoose.Types.ObjectId, ref: "Option"}]
+    options: [optionSchema]
 });
 
 const MCQSchema = mongoose.Schema({
@@ -30,11 +30,9 @@ const MCQSchema = mongoose.Schema({
     description: {
         type: String,
     },
-    questions: [{type: mongoose.Types.ObjectId, ref: "Question"}]
+    questions: [questionSchema]
 }, {timestamps: true});
 
-const Option = mongoose.model('Option', optionSchema);
-const Question = mongoose.model('Question', questionSchema);
 const MCQ = mongoose.model('MCQ', MCQSchema);
 
-module.exports = {Option, Question, MCQ};
+module.exports = MCQ;

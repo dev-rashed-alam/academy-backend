@@ -10,6 +10,7 @@ const purchaseRouter = require("./purchaseRouter");
 const searchRouter = require("./searchRouter");
 const dashboardRouter = require("./dashboardRouter");
 const paymentRouter = require("./paymentRouter");
+const mcqRouter = require("./mcqRouter");
 
 const academyRouter = express.Router();
 
@@ -24,5 +25,6 @@ academyRouter.use("/purchase", purchaseRouter);
 academyRouter.use("/search", searchRouter);
 academyRouter.use("/dashboard", dashboardRouter);
 academyRouter.use("/payments", paymentRouter);
+academyRouter.use("/mcq", mcqRouter);
 
 module.exports = academyRouter

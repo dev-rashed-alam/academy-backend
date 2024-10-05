@@ -22,6 +22,7 @@ const courseUpload = require("../middlewares/course/courseUpload");
 const checkIsValidObjectId = require("../middlewares/common/checkIsValidObjectId");
 const {doPagination} = require("../middlewares/common/paginationMiddleware");
 const Course = require("../models/Course");
+const {mcqValidationRules} = require("../middlewares/mcq/mcqValidator")
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.post(
     authMiddleware,
     courseUpload,
     addCourseValidator,
+    mcqValidationRules,
     validationHandler,
     addNewCourse
 );
