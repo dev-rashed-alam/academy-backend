@@ -261,7 +261,7 @@ const findCourseById = async (req, res, next) => {
         const course = await Course.findOne(
             {_id: req.params.id},
             {__v: 0}
-        ).populate("categories", "name");
+        ).populate("categories", "name").populate("mcqs");
         res.status(200).json({
             data: course,
             message: "successful",
