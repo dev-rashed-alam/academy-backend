@@ -64,9 +64,9 @@ const processUploadedFiles = async (files, customVideoInfos, materialInfos) => {
 
 const addNewCourse = async (req, res, next) => {
     try {
-        let createdMCQs = null
+        let createdMCQs = []
         if (req.body?.mcqs) {
-            createdMCQs = await MCQ.insertMany(req.body.mcqs);
+            createdMCQs = await MCQ.insertMany(JSON.parse(req.body.mcqs));
         }
         let videoInfos = req.body?.videoInfos || [];
         let materialInfos = req.body?.materialInfos || [];
@@ -77,15 +77,18 @@ const addNewCourse = async (req, res, next) => {
             thumbnail: files.thumbnail,
             materials: files.materials,
         };
+        if (req.body?.mcqs) {
+            delete postData.mcqs
+        }
         if (req.body.courseType === "custom") {
             postData.videos = files.videos;
             postData.totalVideos = files.videos?.length;
         }
+        if (createdMCQs.length > 0) {
+            postData.mcqs = [...createdMCQs.map(mcq => mcq._id)]
+        }
         const course = new Course(postData);
         course.categories = req.body.categoryId;
-        if (createdMCQs !== null) {
-            course.mcqs.push(...createdMCQs.map(mcq => mcq._id))
-        }
         await course.save();
         res.status(200).json({
             message: "successful",
@@ -101,6 +104,10 @@ const generateCourseOptionalModelChain = (req, res, next) => {
             methodName: "populate",
             path: "categories",
             value: "name",
+        },
+        {
+            methodName: "populate",
+            path: "mcqs"
         },
     ];
     next();
@@ -266,10 +273,15 @@ const findCourseById = async (req, res, next) => {
 
 const updateCourseById = async (req, res, next) => {
     try {
+        let createdMCQs = []
+        let postData = {...req.body};
+        if (req.body?.mcqs) {
+            createdMCQs = await MCQ.insertMany(JSON.parse(req.body.mcqs));
+            delete postData.mcqs
+        }
         let videoInfos = req.body?.videoInfos || [];
         let materialInfos = req.body?.materialInfos || [];
         const files = await processUploadedFiles(req.files, videoInfos, materialInfos);
-        let postData = {...req.body};
         if (files.thumbnail) {
             postData.thumbnail = files.thumbnail;
         }
@@ -282,6 +294,7 @@ const updateCourseById = async (req, res, next) => {
                     videos: {$each: files.videos},
                     "materials.images": {$each: files.materials.images},
                     "materials.attachments": {$each: files.materials.attachments},
+                    "mcqs": {$each: createdMCQs}
                 },
             }
         );
