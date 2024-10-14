@@ -200,7 +200,6 @@ const findAllCourses = async (req, res, next) => {
         let modifiedData = mapCourseIntro(courseIntros, res.data.data);
         res.status(200).json({...res.data, data: modifiedData});
     } catch (error) {
-        console.log(error)
         setCommonError(res, error.message, 500);
     }
 };
@@ -383,7 +382,7 @@ const findCourseDetailsById = async (req, res, next) => {
         const course = await Course.findOne(
             {_id: req.params.id},
             {__v: 0, ...excludeFields}
-        ).populate("categories", "name");
+        ).populate("categories", "name").populate("mcqs");
         res.status(200).json({
             data: {
                 ...course._doc,

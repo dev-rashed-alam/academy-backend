@@ -25,6 +25,6 @@ academyRouter.use("/purchase", purchaseRouter);
 academyRouter.use("/search", searchRouter);
 academyRouter.use("/dashboard", dashboardRouter);
 academyRouter.use("/payments", paymentRouter);
-academyRouter.use("/mcq", mcqRouter);
+academyRouter.use("/mcqs", mcqRouter);
 
 module.exports = academyRouter

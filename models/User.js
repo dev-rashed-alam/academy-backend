@@ -40,6 +40,11 @@ const userSchema = mongoose.Schema(
             enum: ["own_app", "google_service"],
             default: "own_app",
         },
+        status: {
+            type: String,
+            enum: ["ENABLE", "DISABLE"],
+            default: "ENABLE",
+        },
     },
     {timestamps: true}
 );

@@ -47,6 +47,21 @@ const findUserById = async (req, res, next) => {
     }
 };
 
+const findUserByUserRole = async (req, res, next) => {
+    try {
+        const user = await User.find(
+            {role: req.params.userType},
+            {__v: 0, password: 0}
+        );
+        res.status(200).json({
+            data: user,
+            message: "Successful!",
+        });
+    } catch (error) {
+        setCommonError(res, error.message, 500);
+    }
+};
+
 const updateUserById = async (req, res, next) => {
     try {
         const postData = removeEmptyValues(req.body);
@@ -79,7 +94,22 @@ const updateUserById = async (req, res, next) => {
             }
         });
     } catch (error) {
-        console.log(error)
+        setCommonError(res, error.message, 500);
+    }
+};
+const updateUserStatusById = async (req, res, next) => {
+    try {
+        const postData = removeEmptyValues(req.body);
+        const user = await User.findOneAndUpdate(
+            {_id: req.params.id},
+            {$set: postData},
+            {new: true}
+        );
+        res.status(200).json({
+            message: "Successful!",
+            data: user
+        });
+    } catch (error) {
         setCommonError(res, error.message, 500);
     }
 };
@@ -88,4 +118,6 @@ module.exports = {
     addUser,
     findUserById,
     updateUserById,
+    findUserByUserRole,
+    updateUserStatusById
 };
