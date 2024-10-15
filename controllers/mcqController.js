@@ -60,8 +60,31 @@ const getMcqResult = async (req, res, next) => {
     }
 }
 
+const getMcqResultByCourseId = async (req, res, next) => {
+    try {
+        const courseId = req.params.courseId;
+        const mcqId = req.params.mcqId;
+        const studentResponse = await StudentMCQResponse.findOne({
+            courseId: courseId,
+            mcqId: mcqId
+        }).populate('User')
+        if (!studentResponse) {
+            return res.status(404).json({message: "No response found for this MCQ"});
+        }
+        const mcq = await MCQ.findById(mcqId);
+        res.status(200).json({
+            message: "Successful!",
+            mcq,
+            studentResponse: studentResponse.responses
+        });
+    } catch (error) {
+        setCommonError(res, error.message, 500);
+    }
+}
+
 module.exports = {
     createMcq,
     submitMcq,
-    getMcqResult
+    getMcqResult,
+    getMcqResultByCourseId
 }

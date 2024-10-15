@@ -42,8 +42,8 @@ const userSchema = mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["ENABLE", "DISABLE"],
-            default: "ENABLE",
+            enum: ["enable", "disable"],
+            default: "enable",
         },
     },
     {timestamps: true}
