@@ -9,6 +9,6 @@ router.post('/:mcqId/courses/:courseId', authMiddleware, submitMcq)
 router.post('/create', authMiddleware, mcqValidationRules, validationHandler, createMcq)
 router.post('/:id', authMiddleware, createMcq)
 router.get('/:mcqId/courses/:courseId', authMiddleware, getMcqResult)
-router.get('/courses/:courseId/:mcqId', authMiddleware, getMcqResultByCourseId)
+router.get('/courses/:courseId/mcq/:mcqId', authMiddleware, getMcqResultByCourseId)
 
 module.exports = router

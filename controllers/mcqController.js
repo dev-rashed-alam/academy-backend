@@ -64,10 +64,10 @@ const getMcqResultByCourseId = async (req, res, next) => {
     try {
         const courseId = req.params.courseId;
         const mcqId = req.params.mcqId;
-        const studentResponse = await StudentMCQResponse.findOne({
+        const studentResponse = await StudentMCQResponse.find({
             courseId: courseId,
             mcqId: mcqId
-        }).populate('User')
+        }).populate('courseId').populate('userId')
         if (!studentResponse) {
             return res.status(404).json({message: "No response found for this MCQ"});
         }
@@ -75,7 +75,7 @@ const getMcqResultByCourseId = async (req, res, next) => {
         res.status(200).json({
             message: "Successful!",
             mcq,
-            studentResponse: studentResponse.responses
+            studentResponse: studentResponse
         });
     } catch (error) {
         setCommonError(res, error.message, 500);
