@@ -5,6 +5,7 @@ const {
     removeUploadedFile,
 } = require("../utilities/removeUploadedFileOrFolder");
 const {removeEmptyValues} = require("../utilities/helpers");
+const BlacklistedToken = require("../models/BlackListToken");
 
 const addUser = async (req, res, next) => {
     let newUser;
@@ -105,6 +106,11 @@ const updateUserStatusById = async (req, res, next) => {
             {$set: postData},
             {new: true}
         );
+        if (postData.status === 'disable') {
+            const {authorization} = req.headers;
+            const token = authorization.split(" ")[1];
+            await BlacklistedToken.create({token});
+        }
         res.status(200).json({
             message: "Successful!",
             data: user

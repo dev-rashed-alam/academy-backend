@@ -13,8 +13,7 @@ const client = new OAuth2Client(process.env.O_AUTH_CLIENT_ID);
 const handleLogin = async (req, res, next) => {
     try {
         const user = await User.findOne({email: req.body.email});
-
-        if (user?._id) {
+        if (user?._id && user?.status !== 'disable') {
             if (user?.registrationType === 'google_service') {
                 setCommonError(res, "This email is associated with google! Please try google auth.", 402);
             } else {
@@ -30,6 +29,7 @@ const handleLogin = async (req, res, next) => {
                         mobile: user.mobile,
                         email: user.email,
                         role: user.role,
+                        status: user.status
                     };
 
                     const token = jwt.sign(userObj, process.env.JWT_SECRET, {

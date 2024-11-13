@@ -14,6 +14,7 @@ const {
 const authMiddleware = require("../middlewares/common/authMiddleware");
 const validateConfirmPassword = require("../middlewares/login/validateConfirmPassword");
 const validationHandler = require("../middlewares/common/validationHandler");
+const {authStatusMiddleware} = require("../middlewares/common/errorHandler");
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.put(
 
 router.put(
     "/:id/status",
-    authMiddleware,
+    authStatusMiddleware,
     updateUserStatusById
 );
 

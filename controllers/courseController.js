@@ -76,6 +76,7 @@ const addNewCourse = async (req, res, next) => {
             courseRootPath: req.courseRootPath,
             thumbnail: files.thumbnail,
             materials: files.materials,
+            status: 'enable'
         };
         if (req.body?.mcqs) {
             delete postData.mcqs
@@ -115,11 +116,14 @@ const generateCourseOptionalModelChain = (req, res, next) => {
 
 const generateCourseFilters = (req, res, next) => {
     const {search} = req.query;
+    let params = {}
     if (search) {
-        req.filterQuery = {
-            title: {$regex: search, $options: "i"},
-        };
+        params['title'] = {$regex: search, $options: "i"}
     }
+    if(req.loggedInUser.role === 'student'){
+        params['status'] = 'enable'
+    }
+    req.filterQuery = params
     next();
 };
 
@@ -211,6 +215,9 @@ const generateFilterFieldsForMyCourses = (req, res, next) => {
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
     }
+    if(req.loggedInUser.role === 'student'){
+        query['status'] = 'enable'
+    }
     req.filterQuery = query;
     next();
 };
@@ -220,6 +227,9 @@ const generateFilterFieldsForPopularCourses = (req, res, next) => {
     let query = {students: {$exists: true, $not: {$size: 0}}};
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
+    }
+    if(req.loggedInUser.role === 'student'){
+        query['status'] = 'enable'
     }
     req.filterQuery = query;
     next();
@@ -250,6 +260,9 @@ const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
     }
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
+    }
+    if(req.loggedInUser.role === 'student'){
+        query['status'] = 'enable'
     }
     req.filterQuery = query;
     next();
