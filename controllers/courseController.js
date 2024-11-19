@@ -120,7 +120,7 @@ const generateCourseFilters = (req, res, next) => {
     if (search) {
         params['title'] = {$regex: search, $options: "i"}
     }
-    if(req.loggedInUser.role === 'student'){
+    if (req.loggedInUser.role === 'student') {
         params['status'] = 'enable'
     }
     req.filterQuery = params
@@ -143,7 +143,7 @@ const excludeFieldsFromList = (req, res, next) => {
         videos: 0,
         materials: 0,
         playlistId: 0,
-        youtubeVideos: 0,
+        // youtubeVideos: 0,
     };
     next();
 };
@@ -155,7 +155,7 @@ const roleWiseExcludeFields = (req, res, next) => {
             videos: 0,
             materials: 0,
             playlistId: 0,
-            youtubeVideos: 0,
+            // youtubeVideos: 0,
         };
     }
     next();
@@ -166,6 +166,9 @@ const generateCourseIntro = (req) => {
     let filterQuery = {};
     if (search) {
         filterQuery.title = {$regex: search, $options: "i"};
+    }
+    if (req.loggedInUser.role === 'student') {
+        filterQuery['status'] = 'enable'
     }
     const currentPage = page - 1;
     return Course.aggregate([
@@ -181,27 +184,27 @@ const generateCourseIntro = (req) => {
     ]).exec();
 };
 
-const mapCourseIntro = (courseIntros = [], dataset = []) => {
+const mapCourseIntro = (dataset = [], req) => {
     return dataset.map((item) => {
-        let selectedCourse = courseIntros.find((intro) =>
-            intro._id.equals(item.id)
-        );
-        return {
+        let modifiedItem = {
             ...item._doc,
             courseIntro:
                 item.courseType === "youtube"
-                    ? selectedCourse?.youtubeVideo?.url || ""
-                    : selectedCourse.customVideo.url || "",
+                    ? item?.youtubeVideos?.[0]?.url || ""
+                    : item.videos.url || "",
             id: item.id,
             _id: undefined,
         };
+        if(req.loggedInUser.role === 'student' && req.route.path !== '/my-courses'){
+            delete item.youtubeVideos
+        }
+        return modifiedItem
     });
 };
 
 const findAllCourses = async (req, res, next) => {
     try {
-        const courseIntros = await generateCourseIntro(req);
-        let modifiedData = mapCourseIntro(courseIntros, res.data.data);
+        let modifiedData = mapCourseIntro(res.data.data, req);
         res.status(200).json({...res.data, data: modifiedData});
     } catch (error) {
         setCommonError(res, error.message, 500);
@@ -215,7 +218,7 @@ const generateFilterFieldsForMyCourses = (req, res, next) => {
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
     }
-    if(req.loggedInUser.role === 'student'){
+    if (req.loggedInUser.role === 'student') {
         query['status'] = 'enable'
     }
     req.filterQuery = query;
@@ -228,7 +231,7 @@ const generateFilterFieldsForPopularCourses = (req, res, next) => {
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
     }
-    if(req.loggedInUser.role === 'student'){
+    if (req.loggedInUser.role === 'student') {
         query['status'] = 'enable'
     }
     req.filterQuery = query;
@@ -261,7 +264,7 @@ const generateFilterFieldsForTrendingCourses = async (req, res, next) => {
     if (search) {
         query = {...query, title: {$regex: search, $options: "i"}};
     }
-    if(req.loggedInUser.role === 'student'){
+    if (req.loggedInUser.role === 'student') {
         query['status'] = 'enable'
     }
     req.filterQuery = query;
@@ -413,6 +416,39 @@ const findCourseDetailsById = async (req, res, next) => {
     }
 };
 
+const addCourseRating = async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const {rating, message = ''} = req.body;
+
+        if (rating < 1 || rating > 5) {
+            return res.status(400).json({message: 'Rating must be between 1 and 5'});
+        }
+
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).json({message: 'Course not found'});
+        }
+
+        const existingRating = course.ratings.find(r => r.userId.toString() === req.loggedInUser.id);
+
+        if (existingRating) {
+            existingRating.rating = rating;
+            if (message) {
+                existingRating.message = message
+            }
+        } else {
+            course.ratings.push({userId: req.loggedInUser.id, rating, message: message});
+        }
+        const totalRatings = course.ratings.reduce((sum, r) => sum + r.rating, 0);
+        course.averageRating = totalRatings / course.ratings.length;
+        await course.save();
+        res.status(200).json({message: 'Rating updated successfully', averageRating: course.averageRating});
+    } catch (error) {
+        setCommonError(res, error.message, 500);
+    }
+}
+
 module.exports = {
     addNewCourse,
     findAllCourses,
@@ -431,5 +467,6 @@ module.exports = {
     generateFilterFieldsForPopularCourses,
     generateFilterFieldsForTrendingCourses,
     generateCourseIntro,
-    mapCourseIntro
+    mapCourseIntro,
+    addCourseRating
 };

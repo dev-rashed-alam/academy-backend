@@ -79,7 +79,15 @@ const courseSchema = mongoose.Schema(
             default: "enable",
         },
         students: [{type: mongoose.Types.ObjectId, ref: "Purchase"}],
-        mcqs: [{type: mongoose.Types.ObjectId, ref: "MCQ"}]
+        mcqs: [{type: mongoose.Types.ObjectId, ref: "MCQ"}],
+        ratings: [
+            {
+                userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+                rating: { type: Number, required: true, min: 1, max: 5 },
+                message: { type: String },
+            }
+        ],
+        averageRating: { type: Number, default: 0 },
     },
     {timestamps: true}
 );

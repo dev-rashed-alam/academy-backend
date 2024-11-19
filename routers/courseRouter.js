@@ -10,6 +10,7 @@ const {
     deleteCourseById,
     deleteCourseVideoById,
     deleteCourseMaterialById,
+    addCourseRating,
     generateCourseOptionalModelChain,
     excludeFieldsFromList,
     findCourseDetailsById,
@@ -108,6 +109,13 @@ router.post(
     authMiddleware,
     checkIsValidObjectId,
     deleteCourseVideoById
+);
+
+router.post(
+    "/:id/rate",
+    authMiddleware,
+    checkIsValidObjectId,
+    addCourseRating
 );
 
 module.exports = router;
